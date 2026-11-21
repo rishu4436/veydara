@@ -55,3 +55,23 @@ export function fromCmcKlineRows(rows: (number | string | null)[][], intervalMs:
     return [{ openTime, closeTime, open: o!, high: h!, low: l!, close: c!, volume: Number.isFinite(v) ? v! : null, closed: closeTime <= nowMs }];
   });
 }
+
+/**
+ * Flag candles whose wick extends more than `mult` × the median full range beyond
+ * the body — typical of thin DEX liquidity prints. Candles are never altered;
+ * callers use this to scale charts robustly and to disclose the outliers.
+ */
+export function wickOutliers(c: Candle[], mult = 6): { index: number; openTime: number; side: "high" | "low"; price: number }[] {
+  if (c.length < 10) return [];
+  const ranges = c.map((x) => x.high - x.low).sort((a, b) => a - b);
+  const med = ranges[Math.floor(ranges.length / 2)]!;
+  if (med <= 0) return [];
+  const out: { index: number; openTime: number; side: "high" | "low"; price: number }[] = [];
+  c.forEach((x, i) => {
+    const top = Math.max(x.open, x.close);
+    const bot = Math.min(x.open, x.close);
+    if (x.high - top > mult * med) out.push({ index: i, openTime: x.openTime, side: "high", price: x.high });
+    if (bot - x.low > mult * med) out.push({ index: i, openTime: x.openTime, side: "low", price: x.low });
+  });
+  return out;
+}

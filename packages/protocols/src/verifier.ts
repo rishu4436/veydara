@@ -13,7 +13,7 @@ const add = (a: Q, b: Q): Q => ({ n: a.n * b.d + b.n * a.d, d: a.d * b.d });
 const mul = (a: Q, b: Q): Q => ({ n: a.n * b.n, d: a.d * b.d });
 const geq = (a: Q, b: Q) => a.n * b.d >= b.n * a.d;
 
-export interface Verdict { solver: string; accepted: boolean; checks: { name: string; pass: boolean; detail: string }[]; hfIndependent: string | null }
+export interface Verdict { solver: string; accepted: boolean; status: "verified" | "rejected" | "no-room"; checks: { name: string; pass: boolean; detail: string }[]; hfIndependent: string | null }
 
 export function verifyPlan(plan: Plan, book: Book, m: AaveMarket, policyMinHfWad: bigint, wallet: Record<number, bigint> = {}): Verdict {
   const checks: Verdict["checks"] = [];
@@ -58,5 +58,7 @@ export function verifyPlan(plan: Plan, book: Book, m: AaveMarket, policyMinHfWad
     const diff = claimed > BigInt(hfStr) ? claimed - BigInt(hfStr) : BigInt(hfStr) - claimed;
     c("solver's HF claim matches independent recomputation", diff <= 10n ** 6n, `claimed=${claimed} independent=${hfStr}`);
   }
-  return { solver: plan.solver, accepted: checks.every((x) => x.pass), checks, hfIndependent: hfStr };
+  const accepted = checks.every((x) => x.pass);
+  const onlyNoRoom = amt === 0n; // nothing would be borrowed; remaining checks describe the existing position
+  return { solver: plan.solver, accepted, status: accepted ? "verified" : onlyNoRoom ? "no-room" : "rejected", checks, hfIndependent: hfStr };
 }

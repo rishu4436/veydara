@@ -4,7 +4,20 @@ import { useEffect, useRef } from "react";
 import { CandlestickSeries, ColorType, LineSeries, createChart, type IChartApi, type UTCTimestamp } from "lightweight-charts";
 import type { Candle, Zone } from "@veydara/quant";
 
-export function PriceChart({ candles, ema20 = [], ema50, zones, showZones }: { candles: Candle[]; ema20?: (number | null)[]; ema50: (number | null)[]; zones: Zone[]; showZones: boolean }) {
+/** Robust autoscale: bodies + non-outlier wicks, so one thin-liquidity print cannot flatten the chart. */
+function robustRange(candles: Candle[], outlierIdx: Set<number>) {
+  let lo = Infinity, hi = -Infinity;
+  candles.forEach((k, i) => {
+    const top = outlierIdx.has(i) ? Math.max(k.open, k.close) : k.high;
+    const bot = outlierIdx.has(i) ? Math.min(k.open, k.close) : k.low;
+    if (top > hi) hi = top;
+    if (bot < lo) lo = bot;
+  });
+  const pad = (hi - lo) * 0.06;
+  return { minValue: lo - pad, maxValue: hi + pad };
+}
+
+export function PriceChart({ candles, ema20 = [], ema50, zones, showZones, outlierIdx = [] }: { candles: Candle[]; ema20?: (number | null)[]; ema50: (number | null)[]; zones: Zone[]; showZones: boolean; outlierIdx?: number[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
@@ -21,7 +34,8 @@ export function PriceChart({ candles, ema20 = [], ema50, zones, showZones }: { c
       crosshair: { mode: 0 },
     });
     chartRef.current = chart;
-    const series = chart.addSeries(CandlestickSeries, { upColor: c("--color-mint"), downColor: c("--color-danger"), wickUpColor: c("--color-mint"), wickDownColor: c("--color-danger"), borderVisible: false });
+    const range = robustRange(candles, new Set(outlierIdx));
+    const series = chart.addSeries(CandlestickSeries, { autoscaleInfoProvider: () => ({ priceRange: range }), upColor: c("--color-mint"), downColor: c("--color-danger"), wickUpColor: c("--color-mint"), wickDownColor: c("--color-danger"), borderVisible: false });
     series.setData(candles.map((k) => ({ time: Math.floor(k.openTime / 1000) as UTCTimestamp, open: k.open, high: k.high, low: k.low, close: k.close })));
     const addLine = (vals: (number | null)[], color: string) => {
       if (!vals.length) return;
@@ -42,7 +56,7 @@ export function PriceChart({ candles, ema20 = [], ema50, zones, showZones }: { c
       chart.remove();
       chartRef.current = null;
     };
-  }, [candles, ema20, ema50, zones, showZones]);
+  }, [candles, ema20, ema50, zones, showZones, outlierIdx]);
 
   return <div ref={ref} className="h-[360px] w-full" role="img" aria-label="Candlestick chart; see data table below for values" />;
 }

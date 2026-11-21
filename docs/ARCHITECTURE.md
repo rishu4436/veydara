@@ -9,8 +9,9 @@ apps/web                Next.js 16 (App Router, React 19, TS strict, Tailwind v4
 packages/domain         provenance, capability statuses, bigint unit math, token identity types, US market session
 packages/cmc            endpoint registry, zod schemas, gateway (cache/single-flight/negative cache/backoff/circuit), credit ledger, normalizers
 packages/chains         verified token registry, identity + quarantine, Base scan (viem multicall, block-pinned), Solana scan (JSON-RPC)
-packages/protocols      Aave V4 Base addresses (address book), Chainlink feed reader, adapter capability registry
-packages/quant          candles, indicators, S/R zones
+packages/protocols      Aave V4: addresses (address book), view ABIs (aave-v4 @4885a7ad), block-pinned market/position reads,
+                        bigint HF/liquidation math, Parallel Futures, Solver Arena, independent verifier; Chainlink reader
+packages/quant          candles (CMC v5 + DEX K-line parsers, outlier wicks), indicators, S/R zones, multi-horizon research
 fixtures/cmc            CMC fixtures: *.doc.json = docs examples, *.live.json = recorded keyless responses (all labeled)
 fixtures/chain          registry verification evidence
 tests/live              opt-in live read tests (pnpm test:live)
@@ -24,6 +25,9 @@ tests/live              opt-in live read tests (pnpm test:live)
 
 ## Data flow: open asset (Collateral Passport)
 On-chain ERC-20 metadata at a pinned block → CMC exact-contract resolution (`resolveContract` requires the address on the right platform) → CMC quote → CMC DEX liquidity → CMC RWA aggregate vs issuer tokens (key) → Aave listing check + live Chainlink feed → US session state → CMC-vs-oracle disagreement flag.
+
+## Data flow: positions → futures → arena
+`/api/aave/market` (30 s single-flight cache) pins one block and multicalls Spoke/Hub/Oracle views → `/api/aave/position` reads the user at the same block, recomputes HF with bigint math (must equal the Spoke), derives liquidation prices/headroom and runs Parallel Futures → `/api/strategy` adds eligible wallet holdings as what-if collateral, runs four solvers and verifies each plan independently. No calldata is ever built.
 
 ## Stack decisions
 | Choice | Why |

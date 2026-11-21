@@ -2,7 +2,7 @@
   "name": "veydara",
   "private": true,
   "version": "0.1.0",
-  "description": "VEYDARA — The Intelligent Crypto & RWA Capital Operating System (CMC API Hackathon Round 2, RWA track)",
+  "description": "VEYDARA \u2014 The Intelligent Crypto & RWA Capital Operating System (CMC API Hackathon Round 2, RWA track)",
   "license": "MIT",
   "packageManager": "pnpm@10.34.6",
   "engines": {
@@ -19,7 +19,9 @@
     "check:env": "node scripts/check-env.mjs",
     "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "verify:registry": "node scripts/verify-registry.mjs",
-    "record:cmc": "node scripts/record-cmc-keyless.mjs"
+    "record:cmc": "node scripts/record-cmc-keyless.mjs",
+    "probe:cmc": "node scripts/probe-cmc-plan.mjs --save",
+    "record:aave": "VEYDARA_LIVE_TESTS=1 VEYDARA_RECORD=1 vitest run tests/live/aave-v4-record.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

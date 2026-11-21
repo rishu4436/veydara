@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { atr, ema, macd, rsi, sma, supportResistanceZones } from "@veydara/quant";
+import { atr, ema, macd, rsi, sma, supportResistanceZones, wickOutliers } from "@veydara/quant";
 import { KLINE_INTERVALS, loadCandles } from "@/lib/server/candles";
 import { json, rateLimit } from "@/lib/server/http";
 
@@ -24,5 +24,6 @@ export async function GET(req: Request) {
     ...r,
     indicators: { sma20: sma(closes, 20), ema20: ema(closes, 20), ema50: ema(closes, 50), ema200: ema(closes, 200), rsi14: rsi(closes, 14), macd: macd(closes), atr14: atr(r.candles, 14) },
     zones: supportResistanceZones(r.candles),
+    outliers: wickOutliers(r.candles),
   });
 }

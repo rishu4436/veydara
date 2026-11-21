@@ -56,3 +56,16 @@ describe("Solver Arena + independent verifier", () => {
     expect(amt("Buffer-35")).toBeLessThan(amt("Aggressive"));
   });
 });
+
+describe("verifier status", () => {
+  it("marks zero-room plans as no-room rather than rejected", () => {
+    const p = positions.find((x) => x.reserves.some((r) => BigInt(r.debtRay) > 0n))!;
+    const book: Book = {
+      collateral: p.reserves.filter((r) => r.collateralEnabled && BigInt(r.supplied) > 0n).map((r) => ({ reserveId: r.reserveId, amount: BigInt(r.supplied), supplied: true })),
+      debt: p.reserves.filter((r) => BigInt(r.debtRay) > 0n).map((r) => ({ reserveId: r.reserveId, amount: BigInt(r.debt), amountRay: BigInt(r.debtRay) })),
+    };
+    const plans = solverArena(book, market, usdc.reserveId);
+    const fortress = plans.find((x) => x.solver === "Fortress")!;
+    if (BigInt(fortress.borrowAmount) === 0n) expect(verifyPlan(fortress, book, market, POLICY.minHealthFactorWad).status).toBe("no-room");
+  });
+});

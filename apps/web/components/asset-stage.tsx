@@ -156,7 +156,7 @@ function Passport({ a }: { a: AssetIntel }) {
     ["Exact contract", <span key="c" className="break-all font-mono text-[11.5px]">{a.chain}:{a.address}</span>],
     ["Decimals (on-chain)", a.onchain.status === "ok" ? String(a.onchain.decimals) : "—"],
     ["Total supply (on-chain)", a.onchain.status === "ok" ? <span key="s" className="num">{formatSupply(a.onchain.totalSupply, a.onchain.decimals)} @ block {a.onchain.blockNumber}</span> : "—"],
-    ["CMC listing", a.cmcListing.status === "ok" ? `#${a.cmcListing.cmcId} · ${a.cmcListing.name}` : a.cmcListing.reason],
+    ["CMC listing", a.cmcListing.status === "ok" ? `#${a.cmcListing.cmcId} · ${a.cmcListing.name}` : `Unavailable — ${a.cmcListing.reason}`],
     ["Token-to-share ratio", unknown],
     ["Economic rights / dividends", unknown],
     ["Redemption & custody", unknown],

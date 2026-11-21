@@ -86,7 +86,7 @@ export function PositionView({ address }: { address: string }) {
               {d.collateral.map((c) => (
                 <tr key={c.reserveId} className="border-t border-line-soft">
                   <td className="py-1.5">{c.symbol}</td><td className="text-right">{fmtNum(c.formatted.replace(/,/g, ""), 4)}</td><td className="text-right">{fmtUsd(c.priceUsd)}</td>
-                  <td className="text-right">{c.liquidationPriceUsd ? fmtUsd(c.liquidationPriceUsd) : "—"}</td>
+                  <td className="text-right">{c.liquidationPriceUsd ? fmtUsd(c.liquidationPriceUsd) : <span className="text-[11px] text-faint" title={c.liquidationNote ?? ""}>none alone</span>}</td>
                   <td className={`text-right ${c.distancePct !== null && c.distancePct < 10 ? "text-amber" : ""}`}>{c.distancePct !== null ? `${c.distancePct.toFixed(2)}%` : "—"}</td>
                 </tr>
               ))}
@@ -96,7 +96,7 @@ export function PositionView({ address }: { address: string }) {
             {d.debt.map((x) => <p key={x.reserveId}>Debt: <span className="num">{fmtNum(x.formatted.replace(/,/g, ""), 2)} {x.symbol}</span></p>)}
             <p className="mt-1 text-muted">Extra USDC borrowable: {d.headroom.map((h) => `${fmtNum(h.formatted.replace(/,/g, ""), 2)} at HF ${h.atHf}`).join(" · ")}</p>
           </div>
-          <p className="mt-2 text-[11px] leading-4 text-faint">Single-asset liquidation price holds other collateral and debt prices constant; rounded up (conservative). Math mirrors Spoke._processUserAccountData (aave-v4@{d.sources.abi.commit.slice(0, 8)}).</p>
+          <p className="mt-2 text-[11px] leading-4 text-faint">“none alone”: the other collateral keeps HF ≥ 1 even if this asset went to zero. Single-asset liquidation price holds other collateral and debt prices constant; rounded up (conservative). Math mirrors Spoke._processUserAccountData (aave-v4@{d.sources.abi.commit.slice(0, 8)}).</p>
         </Panel>
         <Panel title="RWA Risk Clock" badge={<CapabilityBadge status="live-verified" title="Session calendar + live position" />}>
           <RiskClock session={session} oracleUpdatedAt={null} oracleAgeSec={null} gap={gap} />
@@ -196,10 +196,10 @@ export function ArenaView({ address, showFutures = true }: { address: string; sh
       {d.plans.length > 0 && (
         <div className="grid gap-4 md:grid-cols-2">
           {d.plans.map((p) => (
-            <article key={p.solver} className={`card p-5 ${p.verdict.accepted ? "border-mint/30" : "border-danger/30"}`}>
+            <article key={p.solver} className={`card p-5 ${p.verdict.status === "verified" ? "border-mint/30" : p.verdict.status === "rejected" ? "border-danger/30" : ""}`}>
               <div className="flex items-center justify-between">
                 <h3 className="font-display text-[20px]">{p.solver}</h3>
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${p.verdict.accepted ? "border-mint/40 text-mint" : "border-danger/40 text-danger"}`}>{p.verdict.accepted ? "Verified" : "Rejected by verifier"}</span>
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${p.verdict.status === "verified" ? "border-mint/40 text-mint" : p.verdict.status === "rejected" ? "border-danger/40 text-danger" : "border-line text-muted"}`}>{p.verdict.status === "verified" ? "Verified" : p.verdict.status === "rejected" ? "Rejected by verifier" : "No room at this target"}</span>
               </div>
               <p className="mt-1 text-[12px] text-muted">{p.thesis}</p>
               <dl className="mt-3 grid grid-cols-2 gap-y-1 text-[12.5px]">

@@ -6,31 +6,39 @@ Built for the **CoinMarketCap API Hackathon, Round 2 — Real World Assets track
 
 ![Collateral Passport — NVDAc](docs/screenshots/passport-nvdac.png)
 
+![Positions — Aave V4](docs/screenshots/positions.png)
+
 ## What works today (verified 2026-11-21)
 
 | | |
 |---|---|
 | **Holdings-first wallet scan** | Connect a Base wallet (injected) or Solana wallet, or watch any address. Base: block-pinned native + verified-registry balances via one multicall. Solana: SOL + all SPL/Token-2022 accounts. |
-| **Exact token identity** | Registry of Coinbase tokenized equities on Base pinned to the official Aave address book and cross-checked on-chain and against CMC's exact-contract listing. Unknown tokens are quarantined; ticker collisions and homoglyphs are flagged as impersonation. |
-| **Honest states** | Stablecoin-only wallets get a calm cash view and "Which token are you considering?" — no shilling. Empty wallets get a research state, never an invented portfolio. |
-| **CMC gateway** | Typed Zod schemas, keyed TTL cache, single-flight, negative caching for 403s, backoff for 429/`1022`, circuit breaker, and a credit ledger (expected vs CMC-reported `credit_count`). Works keyless for the documented keyless subset; key-only endpoints return an honest *Unavailable* without a network call. |
-| **Collateral Passport** | For each tokenized equity: underlying vs issuer token, on-chain supply at a pinned block, CMC listing, **three distinct prices** (CMC issuer-token quote, CMC RWA aggregate, Aave V4 protocol oracle) with a disagreement flag, DEX liquidity, explicit unknowns, sources with dates. |
-| **RWA Risk Clock (slice)** | NYSE session (DST/holiday-aware), next open in local time, live Aave oracle age. |
-| **Alpha engine** | SMA/EMA/RSI/MACD/ATR/volatility/pivots/Fibonacci + clustered support/resistance zones, fixture-tested; runs only on real CMC v5 candles (needs key). |
-| **Proof Center** | Backend-computed capability matrix and the live CMC credit ledger. |
+| **Exact token identity** | Coinbase tokenized equities on Base pinned to the official Aave address book, cross-checked on-chain and against CMC's exact-contract listing. Unknown tokens quarantined; ticker collisions/homoglyphs flagged. |
+| **Collateral Passport** | Underlying vs issuer token, on-chain supply, CMC listing, three distinct prices (CMC token quote, CMC RWA aggregate, Aave V4 oracle) with a disagreement flag, live Aave V4 reserve facts (CF, caps, bonus), DEX liquidity, explicit unknowns, sources. |
+| **Charts + Alpha** | Real CMC DEX K-line candles (1h/4h/1d/1w) for any token contract, EMA20/50 and clustered support/resistance zones, RSI/MACD/ATR, table view, outlier-wick disclosure; multi-horizon research (1h/4h/1d) with per-horizon sources. |
+| **Aave V4 Equities Hub** | Live reserves and user positions on Base; VEYDARA's bigint health factor equals the Spoke's `getUserAccountData` exactly; liquidation prices, drawdown-to-liquidation, borrow APR, headroom. |
+| **RWA Risk Clock** | NYSE session (DST/holiday-aware), next open in local time, oracle age, and what a re-open gap does to the live position's HF. |
+| **Parallel Futures** | Deterministic scenarios (gaps, crash, single-name collapse, debt +2%, rates ×2) on live state — labeled simulation. |
+| **Solver Arena** | Four solvers propose USDC borrow plans; an independent rational-arithmetic verifier checks caps, liquidity, reserve state, balances and an HF ≥ 1.25 policy. Nothing executes. |
+| **Capital Constellation** | Holdings → underlying → venues → live Aave position graph, with a table fallback. |
+| **CMC gateway + Proof Center** | Zod schemas, TTL cache, single-flight, negative caching, backoff, circuit breaker, expired-plan detection with keyless fallback, credit ledger (expected vs reported), recorded key-access probe. |
 
-Not built yet (and shown as such in the UI): Capital Constellation, Parallel Futures, Solver Arena, protocol position reads, any execution, Guardian monitors. See [docs/PRODUCT-FEATURE-MATRIX.md](docs/PRODUCT-FEATURE-MATRIX.md).
+**CMC key status (2026-11-21):** the project key answers `/v1/key/info` (450,000 credits/month, 600 req/min) but all data endpoints return **HTTP 402 / 1004 "subscription plan has expired"**. RWA quotes, the issuer graph and CEX-aggregated v5 OHLCV therefore show *Unavailable* with that reason; everything keyless-capable falls back to the public API automatically. See [docs/SOURCES-AND-CLAIMS.md §3a](docs/SOURCES-AND-CLAIMS.md).
+
+Not built yet: free-form intents, any execution (Phase 4 targets a labeled Base fork), Guardian monitors, Kamino/Morpho/Lista adapters. See [docs/PRODUCT-FEATURE-MATRIX.md](docs/PRODUCT-FEATURE-MATRIX.md).
 
 ## CMC endpoints used
-- `/v3/cryptocurrency/quotes/latest` — holdings and asset quotes (keyless or keyed)
+- `/v3/cryptocurrency/quotes/latest` — holdings and asset quotes
 - `/v2/cryptocurrency/info?address=` — exact-contract → CMC listing identity
 - `/v1/dex/token` — DEX liquidity context
-- `/v5/real-world-assets/quotes/latest` — aggregate tokenized price vs issuer tokens (key)
-- `/v5/real-world-assets/map` — RWA ticker search (key, 0 credits)
-- `/v5/cryptocurrency/ohlcv/historical` — candles for indicators/zones (key)
+- `/v1/k-line/candles` — DEX OHLCV for charts, indicators, zones, research
+- `/v5/real-world-assets/quotes/latest` — aggregate tokenized price, issuer tokens, issuer graph (key)
+- `/v5/real-world-assets/map` — RWA search and 0-credit access probe (key)
+- `/v5/cryptocurrency/ohlcv/historical` — CEX-aggregated candles (key)
+- `/v1/key/info` — plan/credit status (0 credits)
 - Schemas also cover `/v5/real-world-assets/info`, `/quotes/historical`, `/issuers/list`, `/issuers`, `/v1/dex/token/pools`.
 
-Evidence of real calls: `fixtures/cmc/*.live.json` (recorded keyless responses) and the in-app ledger at `/proof`.
+Evidence of real calls: `fixtures/cmc/*.live.json`, `fixtures/chain/*.live.json`, and the in-app ledger at `/proof`.
 
 ## Run locally
 ```bash
@@ -39,16 +47,18 @@ cp .env.example apps/web/.env.local   # optional: add CMC_API_KEY, BASE_RPC_URL
 pnpm check:env
 pnpm dev                               # http://localhost:3000
 ```
-Try it without a wallet: `http://localhost:3000/?watch=0xa4d5947Eb727A052bae69C593FfC84247EC9864E` (the Aave V4 Equities Hub contract — a real protocol contract holding tokenized equities, not a personal wallet).
+Try it without a wallet: `http://localhost:3000/?watch=0xa4d5947Eb727A052bae69C593FfC84247EC9864E` (the Aave V4 Equities Hub contract — a real protocol contract holding tokenized equities, not a personal wallet). On `/positions`, `/strategies` and `/futures`, the address bar offers recent public borrowers found in on-chain `Borrow` events.
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test && pnpm build   # what CI runs
 pnpm test:live          # opt-in live reads (Base RPC, Aave feed, CMC keyless)
 pnpm verify:registry    # re-verify registry contracts on-chain + on CMC
+pnpm probe:cmc          # re-probe which CMC endpoints the configured key can access (0 credits on 402)
+pnpm record:aave        # re-record Aave V4 market/positions and cross-check HF math against the Spoke
 ```
 
 ## Supported chains
-Base (8453) — scan, identity, Aave V4 oracle. Solana mainnet — scan, identity. Ethereum/BNB: architecture only.
+Base (8453) — scan, identity, Aave V4 reserves/positions/oracle. Solana mainnet — scan, identity. Ethereum/BNB: architecture only.
 
 ## Docs
 [Architecture](docs/ARCHITECTURE.md) · [Feature matrix](docs/PRODUCT-FEATURE-MATRIX.md) · [CMC credit strategy](docs/CMC-API-CREDIT-STRATEGY.md) · [Sources & claims](docs/SOURCES-AND-CLAIMS.md) · [Issuer eligibility](docs/ISSUER-ELIGIBILITY.md) · [Protocol adapters](docs/PROTOCOL-ADAPTERS.md) · [Financial models](docs/FINANCIAL-MODELS.md) · [Security](docs/SECURITY.md) · [Execution runbook](docs/EXECUTION-RUNBOOK.md) · [Demo script](docs/DEMO-SCRIPT.md)

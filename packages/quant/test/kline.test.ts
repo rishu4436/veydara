@@ -43,3 +43,14 @@ describe("horizonRead", () => {
     expect(horizonConsensus([up, down]).aligned).toBe("mixed");
   });
 });
+
+import { wickOutliers } from "../src";
+describe("wickOutliers", () => {
+  it("flags a thin-liquidity spike without altering data", () => {
+    const c = Array.from({ length: 20 }, (_, i) => ({ openTime: i, closeTime: i + 1, open: 100, high: 101, low: 99, close: 100.5, volume: 1, closed: true }));
+    c[5] = { ...c[5]!, high: 400 };
+    const o = wickOutliers(c);
+    expect(o).toEqual([{ index: 5, openTime: 5, side: "high", price: 400 }]);
+    expect(c[5]!.high).toBe(400);
+  });
+});

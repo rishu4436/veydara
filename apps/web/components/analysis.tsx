@@ -43,6 +43,7 @@ type OhlcvOk = {
   gaps: number;
   indicators: { ema20: (number | null)[]; ema50: (number | null)[]; ema200: (number | null)[]; rsi14: (number | null)[]; atr14: (number | null)[]; macd: { macd: (number | null)[]; signal: (number | null)[]; histogram: (number | null)[] } };
   zones: ZoneResult;
+  outliers: { index: number; openTime: number; side: "high" | "low"; price: number }[];
   provenance: Provenance;
   source: Source;
 };
@@ -71,7 +72,12 @@ export function ChartPanel({ chain, address }: { chain: string; address: string 
       {d?.status === "unavailable" && <UnavailableLine u={d} extra="The indicator and zone engine never runs on invented candles." />}
       {d?.status === "ok" && (
         <>
-          <PriceChart candles={d.candles} ema20={emaOn ? d.indicators.ema20 : []} ema50={emaOn ? d.indicators.ema50 : []} zones={d.zones.status === "ok" ? d.zones.zones : []} showZones={zonesOn} />
+          <PriceChart candles={d.candles} ema20={emaOn ? d.indicators.ema20 : []} ema50={emaOn ? d.indicators.ema50 : []} zones={d.zones.status === "ok" ? d.zones.zones : []} showZones={zonesOn} outlierIdx={d.outliers.map((o) => o.index)} />
+          {d.outliers.length > 0 && (
+            <p className="mt-2 text-[11px] text-amber">
+              {d.outliers.length} extreme DEX wick{d.outliers.length > 1 ? "s" : ""} excluded from the y-axis scale (data unchanged, see Table): {d.outliers.map((o) => `${new Date(o.openTime).toISOString().slice(0, 10)} ${o.side} ${fmtUsd(String(o.price))}`).join(", ")}.
+            </p>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-3 text-[12px] sm:grid-cols-5">
             <Stat k="Last close" v={fmtUsd(String(d.candles.at(-1)!.close))} />
             <Stat k="RSI 14" v={fmtNum(lastOf(d.indicators.rsi14), 1)} />

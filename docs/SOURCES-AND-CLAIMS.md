@@ -53,7 +53,32 @@ NVDAX (xStocks / Backed) and NVDAon (Ondo) appear in the CMC RWA docs example as
 | Keyless rate limit error `1022` "You've reached the limit for anonymous access" | live response | Verified live (`fixtures/cmc/error-keyless-limit.live.json`) |
 | Missing-key error `1002` "API key missing." on key-only endpoints | live response | Verified live (`fixtures/cmc/error-key-missing.live.json`) |
 | `/v2/cryptocurrency/info?address=` returns HTTP 400 "Invalid value for 'slug': 'null'" for a **lowercase** EVM address and works with the checksummed form | live observation | Verified live; gateway sends checksummed addresses |
-| CMC AI endpoints Enterprise-only (Phase 1) | prompt | Feature-gated off; not called |
+| CMC AI family is `/v5/cmc-ai/coins/map`, `/v5/cmc-ai/latest`, `/v5/cmc-ai/coins/latest` (changelog v3.0.6, 2026-09-09); reference page lists Basic+, blog says Enterprise first then a separate AI credit allowance | https://coinmarketcap.com/api/documentation/pro-api-reference/cmc-ai | Probed 2026-11-21 → 402 with the project key (below) |
+| `/v1/k-line/candles` (DEX OHLCV by token or pool address) is keyless; docs: rows `[o,h,l,c,volume,timestamp(seconds),traders]` | keyless reference + `openapi-keyless.json` | **Verified live** 2026-11-21: timestamp is in **milliseconds** and numbers can exceed float precision (handled in `fromCmcKlineRows`; reported as feedback). 200 candles → `credit_count` 2 |
+
+### 3a. Project CMC key — access probe (2026-11-21, `scripts/probe-cmc-plan.mjs`, `fixtures/cmc/plan-probe.live.json`)
+
+The key itself is never stored. `/v1/key/info` → HTTP 200: monthly credit limit **450,000**, **600 req/min**, 0 credits used, resets 2026-12-01T00:00Z (05:30 IST); `status.notice`: *"Warning, your API Key subscription has expired and will be disabled shortly. Please make a payment during this grace period…"*. The plan name is not returned by the endpoint.
+
+| Endpoint | HTTP | CMC code | Result |
+|---|---|---|---|
+| `/v5/real-world-assets/map`, `/info`, `/quotes/latest`, `/quotes/historical`, `/issuers/list`, `/market-pairs/list` | 402 | 1004 | "Your API Key's subscription plan has expired." |
+| `/v5/cryptocurrency/ohlcv/historical` (daily and hourly) | 402 | 1004 | same |
+| `/v3/cryptocurrency/quotes/latest`, `/v1/dex/token` | 402 | 1004 | same (keyed); both work keyless |
+| `/v5/cmc-ai/coins/map`, `/v5/cmc-ai/latest` | 402 | 1004 | same |
+
+Credits consumed by the probe: **0** (all 402s report `credit_count` 0). Consequence: the gateway treats 402/1004 as `CMC_PLAN_EXPIRED`, suspends pro mode for 15 minutes at a time, retries keyless-capable endpoints through `/public-api`, and reports key-only features as Unavailable with this exact reason.
+
+## 3b. Aave V4 ABIs and on-chain verification
+
+| Claim | Source | Status |
+|---|---|---|
+| Spoke/Hub/Oracle view ABIs (`getReserve`, `getReserveConfig`, `getDynamicReserveConfig`, `getLiquidationConfig`, `getUserAccountData`, `getUserPosition`, `getUserPremiumDebtRay`, `getSpoke`, `getAssetLiquidity`, `getAssetDrawnRate`, `getAssetDrawnIndex`, `getReservePrice`, …) | https://github.com/aave/aave-v4 @ `4885a7ad44391eb6635954ea3b353fa7f12222f5` (2026-11-13T21:32:47-08:00), `src/spoke/interfaces/ISpoke.sol`, `src/hub/interfaces/IHub.sol`, `IHubBase.sol`, `src/spoke/interfaces/IPriceOracle.sol` | Transcribed to `packages/protocols/src/aave-v4-abi.ts`; every function executed via `eth_call` on Base against the address-book deployments and decoded consistently (2026-11-21) |
+| Spoke `ORACLE()` equals the address-book `mag7SpokeOracle`; oracle `spoke()` equals the MAG7 spoke; oracle decimals 8 | live reads | Verified; reads refuse to proceed on mismatch |
+| Health factor formula: Σ(CF_bps × value) × 1e14 × RAY ÷ Σ debtRay·price·10^(18−dec), floor; value = amount × price × 10^(18−dec) | `src/spoke/Spoke.sol::_processUserAccountData`, `libraries/SpokeUtils.sol::toValue` | Implemented in `aave-v4-math.ts`; **exactly equal** (WAD) to `getUserAccountData.healthFactor` for 5 live borrowers (`fixtures/chain/aave-v4-positions.live.json`, test `aave-math.test.ts`) |
+| Liquidation bonus interpolation, `HEALTH_FACTOR_LIQUIDATION_THRESHOLD` = 1e18 | `src/spoke/libraries/LiquidationLogic.sol` | Implemented + hand-computed tests |
+| Simple (linear) interest on drawn rate; premium = drawn × risk premium | `libraries/math/MathUtils.sol::calculateLinearInterest`, `Spoke._processUserAccountData` | Used for APR and accrual estimates |
+| Live MAG7 spoke parameters (block 60302763): CF AAPLc 78%, AMZNc 73%, GOOGLc 76%, METAc 65%, MSFTc 79%, NVDAc 70%, TSLAc 65%, SPCXc 55% (collateral risk 10%); max liquidation bonus 5.5% (SPCXc 6.5%); equities not borrowable; USDC borrowable, draw cap 21,000,000, drawn rate ≈3.74%; target HF 1.24 | `fixtures/chain/aave-v4-market.live.json` | Live read; values change — the app always reads fresh |
 
 ## 4. Market calendar
 
@@ -62,5 +87,5 @@ NYSE 2026 holidays and early closes encoded in `packages/domain/src/market-sessi
 ## 5. Not claimed
 
 - No transaction has been sent, simulated on a fork, or signed by VEYDARA.
-- No borrow availability, rate, cap, or LTV is shown anywhere.
+- Borrow parameters shown are read live from the Spoke/Hub; VEYDARA does not claim the user is eligible to use the Equities Hub.
 - No performance, PnL or TVL figure is computed.

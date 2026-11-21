@@ -29,7 +29,7 @@ export interface PositionAnalysis {
   position: AaveUserPosition;
   hasPosition: boolean;
   veydara: { healthFactorWad: string; matchesSpoke: boolean; riskPremiumBps: string; drawdownToLiquidationBps: string | null; borrowAprBps: Record<string, string> };
-  collateral: { reserveId: number; symbol: string | null; amount: string; formatted: string; priceUsd: string; liquidationPriceUsd: string | null; distancePct: number | null }[];
+  collateral: { reserveId: number; symbol: string | null; amount: string; formatted: string; priceUsd: string; liquidationPriceUsd: string | null; distancePct: number | null; liquidationNote: string | null }[];
   debt: { reserveId: number; symbol: string | null; amount: string; formatted: string }[];
   headroom: { symbol: string | null; atHf: string; amount: string; formatted: string }[];
   futures: ScenarioResult[];
@@ -57,8 +57,9 @@ export async function analysePosition(user: string): Promise<PositionAnalysis> {
         amount: r.supplied,
         formatted: formatUnitsSafe(BigInt(r.supplied), res.decimals),
         priceUsd: fmtPrice(px, market.oracleDecimals),
-        liquidationPriceUsd: lp === null ? null : fmtPrice(lp, market.oracleDecimals),
-        distancePct: lp === null || px === 0n ? null : Number(((px - lp) * 1_000_000n) / px) / 10_000,
+        liquidationPriceUsd: lp === null || lp === 0n ? null : fmtPrice(lp, market.oracleDecimals),
+        distancePct: lp === null || lp === 0n || px === 0n ? null : Number(((px - lp) * 1_000_000n) / px) / 10_000,
+        liquidationNote: lp === 0n ? "Other collateral alone keeps HF ≥ 1 even if this asset went to $0" : lp === null ? "No debt" : null,
       };
     });
   const usdc = market.reserves.find((r) => r.symbol === "USDC");
