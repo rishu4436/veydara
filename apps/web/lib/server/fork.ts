@@ -38,13 +38,26 @@ function accounts(): ForkAccounts {
   return loadForkAccounts(serverEnv().FORK_ACCOUNTS_FILE);
 }
 
+/** Hosted deployments have no fork: refuse fork writes with a plain reason instead of a loopback error. */
+export class ForkUnavailableError extends Error {
+  code = "FORK_HOSTED";
+}
+function assertLocalFork() {
+  if (serverEnv().VERCEL) throw new ForkUnavailableError("Fork features are unavailable on the hosted deployment; run VEYDARA locally with `pnpm fork`.");
+}
+
 export async function forkStatus(): Promise<ForkStatus> {
   const env = serverEnv();
+  if (env.VERCEL) {
+    // Hosted demo: there is no anvil next to a serverless function, and we never point the signer anywhere else.
+    return { status: "unavailable", code: "FORK_HOSTED", reason: "This is the hosted deployment. The fork (anvil, chain 31337) runs only on your own machine, so fork execution and wallet signing on the fork are unavailable here.", howTo: HOWTO };
+  }
   let fork: ForkInfo;
   try {
     fork = await inspectFork(env.FORK_RPC_URL);
   } catch (e) {
-    return { status: "unavailable", code: (e as { code?: string }).code ?? "FORK_UNREACHABLE", reason: (e as Error).message.slice(0, 200), howTo: HOWTO };
+    // First line only: viem errors carry the request body and version banner.
+    return { status: "unavailable", code: (e as { code?: string }).code ?? "FORK_UNREACHABLE", reason: ((e as Error).message.split("\n")[0] ?? "").slice(0, 200), howTo: HOWTO };
   }
   let acc: ForkAccounts;
   try {
@@ -64,6 +77,7 @@ export async function forkStatus(): Promise<ForkStatus> {
 }
 
 export async function fundAccount(account: string, symbol: string, amount: string, ownedWallets: readonly string[] = []): Promise<FundingRecord> {
+  assertLocalFork();
   const acc = accounts();
   const who = getAddress(account);
   const isWallet = ownedWallets.some((w) => getAddress(w) === who);
@@ -89,6 +103,7 @@ export function publicPrepared(p: Prepared) {
 }
 
 export async function prepare(intent: unknown, session: { userId: string; wallets: string[] } | null) {
+  assertLocalFork();
   const owned = session?.wallets ?? [];
   const p = await prepareIntent(ctx(accounts(), owned), intent);
   const now = Date.now();
@@ -104,6 +119,7 @@ export async function prepare(intent: unknown, session: { userId: string; wallet
 }
 
 export async function execute(previewId: string, previewHash: string): Promise<ExecutionRecord> {
+  assertLocalFork();
   const hit = prepared.get(previewId);
   if (!hit) throw new Error("Preview expired or unknown — prepare again.");
   if (hit.p.preview?.previewHash !== previewHash) throw new Error("Preview hash mismatch — refusing to sign something you did not review.");
@@ -117,6 +133,7 @@ export async function execute(previewId: string, previewHash: string): Promise<E
 
 /** Wallet signer, step 1: freshness re-check, then return the exact previewed steps for the wallet (chain 31337). */
 export async function beginWallet(previewId: string, previewHash: string, session: { userId: string; wallets: string[] }): Promise<{ request: WalletSigningRequest; stages: Stage[] } | { record: ExecutionRecord }> {
+  assertLocalFork();
   const hit = prepared.get(previewId);
   if (!hit) throw new Error("Preview expired or unknown — prepare again.");
   if (hit.p.preview?.previewHash !== previewHash) throw new Error("Preview hash mismatch — refusing to hand the wallet something you did not review.");
@@ -134,6 +151,7 @@ export async function beginWallet(previewId: string, previewHash: string, sessio
 
 /** Wallet signer, step 2: verify what the wallet actually sent against the preview, then receipts → reconcile → proof. */
 export async function finishWallet(previewId: string, submitted: SubmittedTx[], session: { userId: string; wallets: string[] }): Promise<ExecutionRecord> {
+  assertLocalFork();
   const hit = prepared.get(previewId);
   if (!hit?.walletStages) throw new Error("No wallet signing session for this preview — begin again.");
   if (hit.userId !== session.userId) throw new Error("This preview belongs to a different signed-in account.");

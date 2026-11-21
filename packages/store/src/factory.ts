@@ -22,7 +22,9 @@ export function createStore(cfg: StoreConfig): Store {
     } catch {
       /* host stays generic; never echo the URL (it carries credentials) */
     }
-    return new PgStore(drizzle(pool, { schema }), `Postgres at ${host} (Drizzle; migrations in packages/store/drizzle)`);
+    // Public capability text: keep the provider/region suffix, hide the endpoint label.
+    const shown = host.includes(".") ? host.replace(/^[^.]+/, "…") : host;
+    return new PgStore(drizzle(pool, { schema }), `Postgres at ${shown} (Drizzle; migrations in packages/store/drizzle)`);
   }
   return new JsonStore(cfg.jsonFile, cfg.jsonDurable);
 }

@@ -126,7 +126,7 @@ export async function prepareRevoke(r: RevokeRequest) {
     const tx = { from: owner, to: token, data, value: "0", chainIdForYourWallet: 8453 };
     const preview = `Set ${t.symbol} allowance for ${labelFor(spender) ?? spender} to 0 (approve(${spender}, 0)).`;
     const fc = forkClient(rpcUrl);
-    const sim = await simulateAsOwner(rpcUrl, owner, token, data, { name: `${t.symbol} allowance → spender`, read: async () => String(await fc.readContract({ address: token, abi: ERC20_ABI, functionName: "allowance", args: [owner, spender] })), expect: "0" }).catch((e) => ({ unavailable: (e as Error).message.slice(0, 200) }));
+    const sim = await simulateAsOwner(rpcUrl, owner, token, data, { name: `${t.symbol} allowance → spender`, read: async () => String(await fc.readContract({ address: token, abi: ERC20_ABI, functionName: "allowance", args: [owner, spender] })), expect: "0" }).catch((e) => ({ unavailable: ((e as Error).message.split("\n")[0] ?? "").slice(0, 200) }));
     return { tx, preview, simulation: sim };
   }
   const pm = getAddress(r.positionManager);
@@ -134,6 +134,6 @@ export async function prepareRevoke(r: RevokeRequest) {
   const tx = { from: owner, to: spoke, data, value: "0", chainIdForYourWallet: 8453 };
   const preview = `Remove ${labelFor(pm) ?? pm} as a position manager for your MAG7 Spoke position (setUserPositionManager(${pm}, false)).`;
   const fc = forkClient(rpcUrl);
-  const sim = await simulateAsOwner(rpcUrl, owner, spoke, data, { name: "isPositionManager(owner, pm)", read: async () => String(await fc.readContract({ address: spoke, abi: SPOKE_WRITE_ABI, functionName: "isPositionManager", args: [owner, pm] })), expect: "false" }).catch((e) => ({ unavailable: (e as Error).message.slice(0, 200) }));
+  const sim = await simulateAsOwner(rpcUrl, owner, spoke, data, { name: "isPositionManager(owner, pm)", read: async () => String(await fc.readContract({ address: spoke, abi: SPOKE_WRITE_ABI, functionName: "isPositionManager", args: [owner, pm] })), expect: "false" }).catch((e) => ({ unavailable: ((e as Error).message.split("\n")[0] ?? "").slice(0, 200) }));
   return { tx, preview, simulation: sim };
 }

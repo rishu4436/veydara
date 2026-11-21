@@ -2,6 +2,8 @@
 
 > Understands what you actually own, explains the exact instrument and its real risks, and shows every number's source.
 
+**Live:** https://veydara-app.vercel.app (Vercel, functions in Singapore, Neon Postgres in AWS ap-southeast-1). Live Base/Solana reads, SIWE accounts and the intent engine work there. Fork Lab and wallet signing on the fork show as *Unavailable* because the anvil fork only runs locally. CMC data uses the keyless public API until a CMC key is set in the Vercel project.
+
 Built for the **CoinMarketCap API Hackathon, Round 2 — Real World Assets track** (submissions close 9 Dec 2026, 23:59 UTC).
 
 ![Collateral Passport — NVDAc](docs/screenshots/passport-nvdac.png)

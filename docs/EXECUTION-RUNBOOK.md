@@ -54,3 +54,9 @@ Mainnet signing is disabled and labelled unavailable. Evidence: `fixtures/fork/w
 - No `DATABASE_URL`: JSON file store (`VEYDARA_DATA_FILE`, default `<repo>/.veydara/data.json`, git-ignored, 0600).
 - With `DATABASE_URL=postgres://…` (e.g. a Neon connection string set in the deploy environment): run `pnpm db:migrate` once, then start the app. No cloud database has been provisioned by this project; Neon is only a configuration option.
 - Local verification used a throwaway Postgres on 127.0.0.1:5433: migrations applied (8 tables) and the fork + fixture e2e suites wrote users, wallets, sessions, nonces and proofs to it.
+
+## Hosted deployment (Vercel)
+- Project `veydara` (root directory `apps/web`, Next.js, pnpm install from the workspace root, Node 24, functions in `sin1`), production URL https://veydara-app.vercel.app.
+- Env (Production + Preview): `DATABASE_URL` (Neon pooled, `sslmode=verify-full`, sensitive), `VEYDARA_PUBLIC_ORIGIN` (production only). `CMC_API_KEY` is set by the owner in the Vercel dashboard. `NEXT_PUBLIC_FORK_RPC_URL` is deliberately unset.
+- On Vercel (`VERCEL` set) every fork write path refuses with `FORK_HOSTED` and capabilities report fork execution as unavailable.
+- Neon schema was applied from `packages/store/drizzle/0000_init.sql` with matching `drizzle.__drizzle_migrations` bookkeeping, so `pnpm db:migrate` is a no-op until a new migration is added.
