@@ -1,9 +1,11 @@
 "use client";
 /**
- * In-app Guardian state (this browser only): watched addresses, monitor-only
- * policies and the deduplicated alert inbox. Nothing is sent anywhere.
+ * In-app Guardian state: watched addresses, monitor-only policies and the deduplicated
+ * alert inbox. Kept in this browser; when signed in with Ethereum, policies and alerts are
+ * also persisted server-side (Postgres or the JSON fallback). Nothing is ever acted on.
  */
 import { useSyncExternalStore } from "react";
+import { authFetch } from "./auth-fetch";
 import { DEFAULT_POLICIES, type Alert, type Policy } from "@veydara/protocols";
 
 export interface InboxAlert extends Alert { firstSeen: string; lastSeen: string; acked: boolean; active: boolean }
@@ -35,10 +37,27 @@ export function useGuardian(): State {
   return useSyncExternalStore((f) => (subs.add(f), () => subs.delete(f)), read, () => empty);
 }
 
+let serverSync = false;
+const push = (url: string, method: string, body: unknown) => {
+  if (serverSync) authFetch(url, { method, body }).catch(() => null);
+};
+
 export const guardian = {
+  /** Called once a SIWE session is known: pull server policies (if any), then mirror changes. */
+  async attachServer(enabled: boolean) {
+    serverSync = enabled;
+    if (!enabled) return;
+    try {
+      const r = await authFetch<{ policies: Policy[]; stored: boolean }>("/api/guardian/policies");
+      if (r.stored) write({ ...read(), policies: r.policies.map((p) => ({ ...p, mode: "monitor" })) });
+      else push("/api/guardian/policies", "PUT", { policies: read().policies });
+    } catch {
+      serverSync = false;
+    }
+  },
   setWatch(watch: string[]) { write({ ...read(), watch: [...new Set(watch.map((a) => a.trim()).filter(Boolean))].slice(0, 5) }); },
-  setPolicies(policies: Policy[]) { write({ ...read(), policies: policies.map((p) => ({ ...p, mode: "monitor" })) }); },
-  resetPolicies() { write({ ...read(), policies: DEFAULT_POLICIES }); },
+  setPolicies(policies: Policy[]) { write({ ...read(), policies: policies.map((p) => ({ ...p, mode: "monitor" })) }); push("/api/guardian/policies", "PUT", { policies: read().policies }); },
+  resetPolicies() { write({ ...read(), policies: DEFAULT_POLICIES }); push("/api/guardian/policies", "PUT", { policies: DEFAULT_POLICIES }); },
   /** Merge an evaluation: dedupe by key, keep first-seen, mark resolved ones inactive. */
   ingest(addresses: string[], alerts: Alert[]) {
     const s = read();
@@ -51,7 +70,8 @@ export const guardian = {
       byKey.set(a.key, { ...a, firstSeen: prev?.firstSeen ?? now, lastSeen: now, acked: prev?.acked ?? false, active: true });
     }
     write({ ...s, inbox: [...byKey.values()].sort((x, y) => (x.lastSeen < y.lastSeen ? 1 : -1)).slice(0, 100) });
+    if (alerts.length) push("/api/guardian/alerts", "POST", { alerts });
   },
-  ack(key: string) { const s = read(); write({ ...s, inbox: s.inbox.map((a) => (a.key === key ? { ...a, acked: true } : a)) }); },
+  ack(key: string) { const s = read(); write({ ...s, inbox: s.inbox.map((a) => (a.key === key ? { ...a, acked: true } : a)) }); push("/api/guardian/alerts", "PATCH", { key }); },
   clearResolved() { const s = read(); write({ ...s, inbox: s.inbox.filter((a) => a.active) }); },
 };

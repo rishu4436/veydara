@@ -41,7 +41,7 @@ export function WalletButton() {
               Disconnect all &amp; forget watch address
             </button>
           )}
-          <p className="mt-3 text-[11px] leading-4 text-faint">VEYDARA only reads public balances. It never asks you to sign or send anything in this release.</p>
+          <p className="mt-3 text-[11px] leading-4 text-faint">Sign-in uses a SIWE message (no transaction). Transactions are only ever requested on the local fork (chain 31337); mainnet signing is disabled.</p>
         </div>
       )}
     </div>

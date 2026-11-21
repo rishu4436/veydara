@@ -1,3 +1,4 @@
+import { store } from "./store";
 import type { Capability, CapabilityStatus } from "@veydara/domain";
 import { ADAPTERS } from "@veydara/protocols";
 import { cmc } from "./cmc";
@@ -98,7 +99,16 @@ export async function resolveCapabilities(): Promise<Capability[]> {
     fork.ok
       ? { id: "execute.fork", label: "Fork execution (Aave V4 MAG7: supply, collateral, borrow, repay, withdraw)", pillar: "execute", status: "fork-testnet", evidence: `anvil chain ${fork.f.chainId}, Base forked at ${fork.f.forkBlockNumber} via ${fork.f.upstreamHost}`, reason: "Full pipeline on a LOCAL anvil fork: validate → fresh state → typed route → verifier → simulation → preview → sign (anvil test key, chain 31337) → send → receipt → reconcile → proof record.", checkedAt: now }
       : { id: "execute.fork", label: "Fork execution (Aave V4 MAG7)", pillar: "execute", status: "unavailable", reason: `No local fork reachable: ${fork.reason}`, unlock: "Run `pnpm fork` (anvil, chain 31337, loopback only).", checkedAt: now },
-    { id: "execute.mainnet", label: "Mainnet transaction execution", pillar: "execute", status: "unavailable", reason: "Deliberately not implemented. The signer refuses any chain id other than 31337 and any non-loopback RPC.", checkedAt: now },
+    fork.ok
+      ? { id: "execute.wallet-fork", label: "User-wallet signing on the fork (injected wallet, chain 31337)", pillar: "execute", status: "fork-testnet", evidence: "wallet adds/switches to chain 31337; server verifies from/to/calldata/chainId of every wallet-sent tx against the preview", reason: "SIWE-proven wallets only. The server never sees a key; each submitted tx is checked against the reviewed preview before receipts and reconciliation.", checkedAt: now }
+      : { id: "execute.wallet-fork", label: "User-wallet signing on the fork", pillar: "execute", status: "unavailable", reason: `No local fork reachable: ${fork.reason}`, unlock: "Run `pnpm fork` locally and open VEYDARA on the same machine.", checkedAt: now },
+    { id: "execute.mainnet", label: "Mainnet transaction execution / mainnet wallet signing", pillar: "execute", status: "unavailable", reason: "Deliberately disabled. No UI path asks a wallet to send on chain 8453; the server signer refuses any chain id other than 31337 and any non-loopback RPC.", checkedAt: now },
+    { id: "execute.intent", label: "Capital Intent Engine (deterministic NL/preset → bounded constraints → Solver Arena)", pillar: "execute", status: isFixtureMode() ? "simulation" : baseProbe.ok ? "simulation" : "unavailable", reason: "Grammar-based parser (no LLM); constraints are bounded and rejected when out of range; plans pass the independent verifier. Analysis only — nothing is signed.", checkedAt: now },
+    { id: "platform.siwe", label: "Sign-In with Ethereum (EIP-4361), multi-wallet proofs", pillar: "platform", status: "live-verified", reason: "Server nonces (single use, 5 min), strict domain/uri/chain/statement checks, ecrecover + ERC-1271/6492, HttpOnly SameSite=Strict 1-hour session, CSRF token bound to the session.", checkedAt: now },
+    (() => {
+      const info = store().info();
+      return { id: "platform.persistence", label: "Persistence (sessions, policies, alerts, proofs, credit ledger)", pillar: "platform" as const, status: info.kind === "postgres" ? ("live-verified" as const) : ("read-only" as const), reason: info.detail, unlock: info.kind === "postgres" ? undefined : "Set DATABASE_URL (e.g. Neon) and run `pnpm db:migrate`.", checkedAt: now };
+    })(),
     { id: "guardian.radar", label: "Risk radar (7 axes per position)", pillar: "guardian", status: isFixtureMode() ? "read-only" : baseProbe.ok ? "live-verified" : "unavailable", reason: "Deterministic scores from block-pinned Aave V4 reads, Chainlink feed ages and the NYSE session calendar.", checkedAt: now },
     { id: "guardian.alerts", label: "In-app alert center (policies)", pillar: "guardian", status: "read-only", reason: "Monitor-only policies evaluated on demand or every 60 s while open; inbox de-duplicated in this browser. No push/email channel and no actions.", checkedAt: now },
     { id: "guardian.emergency", label: "Emergency center (positions, allowances, position managers)", pillar: "guardian", status: baseProbe.ok && !isFixtureMode() ? "live-verified" : "unavailable", reason: `Live allowance + isPositionManager reads; revocations are prepared and simulated only on the local fork${fork.ok ? "" : " (fork currently unavailable)"}.`, checkedAt: now },

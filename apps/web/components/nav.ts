@@ -10,4 +10,6 @@ export const NAV = [
   { href: "/futures", label: "Parallel Futures", icon: I.futures, short: "Futures" },
   { href: "/guardian", label: "Guardian", icon: I.guardian, short: "Guardian" },
   { href: "/proof", label: "Proof Center", icon: I.proof, short: "Proof" },
+  { href: "/kamino", label: "Kamino (Solana)", icon: I.discover, short: "Kamino" },
+  { href: "/account", label: "Account", icon: I.wallet, short: "Account" },
 ] as const;

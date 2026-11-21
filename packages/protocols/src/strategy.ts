@@ -104,7 +104,17 @@ export interface Plan {
 
 export const POLICY = { minHealthFactorWad: 1_250000000000000000n, note: "VEYDARA policy floor HF 1.25 (above the Spoke targetHealthFactor 1.24 used to restore liquidated positions)." } as const;
 
-export function solverArena(book: Book, m: AaveMarket, borrowReserveId: number): Plan[] {
+export interface SolverSpec { id: string; thesis: string; target: bigint; /** Fixed borrow amount (base units). Not clipped: the verifier judges it. */ amount?: bigint }
+
+export const ARENA_SOLVERS: SolverSpec[] = [
+  { id: "Fortress", thesis: "Keep HF ≥ 2.00: survives a ~50% uniform equity drawdown.", target: 2_000000000000000000n },
+  { id: "Gap-proof", thesis: "After a −20% Monday gap, HF stays at or above the Spoke target 1.24 (HF ≥ 1.55 now).", target: 1_550000000000000000n },
+  { id: "Buffer-35", thesis: "Collateral can fall 35% before liquidation (HF ≥ 1/(1−0.35)).", target: 1_538461538461538462n },
+  { id: "Aggressive", thesis: "Borrow up to HF 1.10 — included to show the verifier rejecting unsafe candidates.", target: 1_100000000000000000n },
+];
+
+/** One candidate plan: borrow the max at `target` HF (capped by hub liquidity / draw cap), or a fixed amount. */
+export function planAt(book: Book, m: AaveMarket, borrowReserveId: number, s: SolverSpec): Plan {
   const br = m.reserves[borrowReserveId]!;
   const { coll, debt } = legs(book, m);
   const rp = accountMath(coll, debt).riskPremiumBps;
@@ -113,29 +123,29 @@ export function solverArena(book: Book, m: AaveMarket, borrowReserveId: number):
     const cap = br.drawCapTokens === null ? null : BigInt(br.drawCapTokens) * 10n ** BigInt(br.decimals) - BigInt(br.totalDebt);
     return cap === null ? liq : cap < liq ? (cap > 0n ? cap : 0n) : liq;
   })();
-  const solvers: { id: string; thesis: string; target: bigint }[] = [
-    { id: "Fortress", thesis: "Keep HF ≥ 2.00: survives a ~50% uniform equity drawdown.", target: 2_000000000000000000n },
-    { id: "Gap-proof", thesis: "After a −20% Monday gap, HF stays at or above the Spoke target 1.24 (HF ≥ 1.55 now).", target: 1_550000000000000000n },
-    { id: "Buffer-35", thesis: "Collateral can fall 35% before liquidation (HF ≥ 1/(1−0.35)).", target: 1_538461538461538462n },
-    { id: "Aggressive", thesis: "Borrow up to HF 1.10 — included to show the verifier rejecting unsafe candidates.", target: 1_100000000000000000n },
-  ];
-  return solvers.map((s) => {
-    let amt = maxAdditionalBorrow(coll, debt, { decimals: br.decimals, price: BigInt(br.price) }, s.target);
+  let amt: bigint;
+  if (s.amount !== undefined) amt = s.amount;
+  else {
+    amt = maxAdditionalBorrow(coll, debt, { decimals: br.decimals, price: BigInt(br.price) }, s.target);
     if (amt > headroom) amt = headroom;
-    const after = accountMath(coll, [...debt, { amount: amt, decimals: br.decimals, price: BigInt(br.price) }]);
-    return {
-      solver: s.id,
-      thesis: s.thesis,
-      targetHfWad: s.target.toString(),
-      steps: [
-        ...book.collateral.filter((c) => !c.supplied).map((c) => ({ action: "supply" as const, reserveId: c.reserveId, symbol: m.reserves[c.reserveId]!.symbol, amount: c.amount.toString() })),
-        { action: "borrow" as const, reserveId: borrowReserveId, symbol: br.symbol, amount: amt.toString() },
-      ],
-      borrowReserveId,
-      borrowAmount: amt.toString(),
-      expectedHfWad: after.healthFactor.toString(),
-      aprBps: borrowAprBps(BigInt(br.drawnRateRay), after.riskPremiumBps > rp ? after.riskPremiumBps : rp).toString(),
-      interest30d: accruedInterest(amt, BigInt(br.drawnRateRay), after.riskPremiumBps, 30n * 86400n).toString(),
-    };
-  });
+  }
+  const after = accountMath(coll, [...debt, { amount: amt, decimals: br.decimals, price: BigInt(br.price) }]);
+  return {
+    solver: s.id,
+    thesis: s.thesis,
+    targetHfWad: s.target.toString(),
+    steps: [
+      ...book.collateral.filter((c) => !c.supplied).map((c) => ({ action: "supply" as const, reserveId: c.reserveId, symbol: m.reserves[c.reserveId]!.symbol, amount: c.amount.toString() })),
+      { action: "borrow" as const, reserveId: borrowReserveId, symbol: br.symbol, amount: amt.toString() },
+    ],
+    borrowReserveId,
+    borrowAmount: amt.toString(),
+    expectedHfWad: after.healthFactor.toString(),
+    aprBps: borrowAprBps(BigInt(br.drawnRateRay), after.riskPremiumBps > rp ? after.riskPremiumBps : rp).toString(),
+    interest30d: accruedInterest(amt, BigInt(br.drawnRateRay), after.riskPremiumBps, 30n * 86400n).toString(),
+  };
+}
+
+export function solverArena(book: Book, m: AaveMarket, borrowReserveId: number, solvers: SolverSpec[] = ARENA_SOLVERS): Plan[] {
+  return solvers.map((s) => planAt(book, m, borrowReserveId, s));
 }

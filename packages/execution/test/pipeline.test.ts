@@ -21,7 +21,7 @@ function state(over: Partial<{ wallet: Record<number, string>; allowance: Record
 }
 const NV = market.reserves.findIndex((r) => r.symbol === "NVDAc");
 const US = market.reserves.findIndex((r) => r.symbol === "USDC");
-const intent = (actions: Intent["actions"]): Intent => ({ account: ACCT, actions, source: "manual" });
+const intent = (actions: Intent["actions"]): Intent => ({ account: ACCT, actions, source: "manual", signer: "anvil-test-account" });
 
 describe("fork guard", () => {
   it("accepts loopback and refuses remote RPCs", () => {
@@ -37,6 +37,11 @@ describe("validate", () => {
     const notTest = validateIntent({ account: "0x5771e9CD1F225eBdE88D4815587C38899604AC2a", actions: [{ kind: "supply", reserveId: NV, amount: "1" }] }, { testAccounts: [ACCT], reserveCount: 9 });
     expect(notTest.ok).toBe(false);
     expect(notTest.errors[0]).toMatch(/not one of this fork's anvil-generated test accounts/);
+    // Wallet signer: only SIWE-proven wallets, never "any address".
+    const real = "0x5771e9CD1F225eBdE88D4815587C38899604AC2a";
+    expect(validateIntent({ account: real, signer: "wallet", actions: [{ kind: "supply", reserveId: NV, amount: "1" }] }, { testAccounts: [ACCT], ownedWallets: [], reserveCount: 9 }).errors[0]).toMatch(/Sign-In with Ethereum/);
+    expect(validateIntent({ account: real, signer: "wallet", actions: [{ kind: "supply", reserveId: NV, amount: "1" }] }, { testAccounts: [ACCT], ownedWallets: [real.toLowerCase()], reserveCount: 9 }).ok).toBe(true);
+    expect(validateIntent({ account: ACCT, signer: "wallet", actions: [{ kind: "supply", reserveId: NV, amount: "1" }] }, { testAccounts: [ACCT], ownedWallets: [], reserveCount: 9 }).ok).toBe(false);
     expect(validateIntent({ account: ACCT, actions: [{ kind: "borrow", reserveId: US, amount: "1.5" }] }, { testAccounts: [ACCT], reserveCount: 9 }).ok).toBe(false);
     expect(validateIntent({ account: ACCT, actions: [{ kind: "borrow", reserveId: US, amount: "0" }] }, { testAccounts: [ACCT], reserveCount: 9 }).ok).toBe(false);
     expect(validateIntent({ account: ACCT, actions: [{ kind: "borrow", reserveId: 42, amount: "5" }] }, { testAccounts: [ACCT], reserveCount: 9 }).ok).toBe(false);

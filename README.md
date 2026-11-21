@@ -23,13 +23,18 @@ Built for the **CoinMarketCap API Hackathon, Round 2 — Real World Assets track
 | **Parallel Futures** | Deterministic scenarios (gaps, crash, single-name collapse, debt +2%, rates ×2) on live state — labeled simulation. |
 | **Solver Arena** | Four solvers propose USDC borrow plans; an independent rational-arithmetic verifier checks caps, liquidity, reserve state, balances and an HF ≥ 1.25 policy. Nothing executes. |
 | **Fork Lab (Phase 4)** | Supply → use as collateral → borrow USDC → partial repay → withdraw against the real Aave V4 MAG7 Spoke state on a **local anvil fork of Base (chain 31337)**. Pipeline: validate → fork guard → fresh state → typed route (pinned ABI, exact-amount approvals) → independent verifier → simulation in a reverted snapshot → human-readable preview (hash-bound) → local signing with an anvil-generated key → send to the fork → receipts with decoded reverts → reconciliation (VEYDARA HF = Spoke HF) → Proof Center record. Blocked and reverted runs are recorded too. |
+| **Wallet signing on the fork (Phase 5)** | Sign in with Ethereum, then let your own injected wallet add/switch to the local fork (chain 31337) and sign the same verified pipeline. Every returned tx is checked against the preview (from/to/calldata/chainId/value) before receipts and reconciliation. Mainnet signing is shown as unavailable. |
+| **SIWE accounts** | EIP-4361 sign-in with single-use server nonces, 1 h HttpOnly SameSite=Strict cookies, CSRF header + same-origin checks, and ownership proofs for multiple wallets. Guardian policies/alerts sync to the server when signed in. |
+| **Capital Intent Engine** | Presets or plain-language goals ("borrow max USDC against NVDAc but survive a 40% drop") parsed by a deterministic grammar into typed, bounded constraints (out-of-range values are errors, never clamped; unrecognised clauses are listed), then solved by the constrained Solver Arena and verifier. No LLM is involved. |
+| **Kamino (Solana), read-only** | The verified Kamino xStocks market via the official klend-sdk: reserves (LTV, liquidation LTV, APYs) and any owner's obligations with distance to liquidation. |
+| **Persistence** | Postgres via Drizzle + migrations (`DATABASE_URL`, e.g. Neon) for sessions, wallets, policies, alerts, proofs and the CMC credit ledger, with a JSON-file fallback for local dev. |
 | **Guardian** | 7-axis risk radar per watched position; in-app alert center with monitor-only policies (de-duplicated inbox, bell badge); emergency center showing positions, live token allowances (address-book spenders + Approval-log discovery) and position managers, with revocations prepared and simulated **only on the fork**. |
 | **Capital Constellation** | Holdings → underlying → venues → live Aave position graph, with a table fallback. |
 | **CMC gateway + Proof Center** | Zod schemas, TTL cache, single-flight, negative caching, backoff, circuit breaker, expired-plan detection with keyless fallback, credit ledger (expected vs reported), recorded key-access probe. |
 
 **CMC key status (2026-11-21):** the project key answers `/v1/key/info` (450,000 credits/month, 600 req/min) but all data endpoints return **HTTP 402 / 1004 "subscription plan has expired"**. RWA quotes, the issuer graph and CEX-aggregated v5 OHLCV therefore show *Unavailable* with that reason; everything keyless-capable falls back to the public API automatically. See [docs/SOURCES-AND-CLAIMS.md §3a](docs/SOURCES-AND-CLAIMS.md).
 
-Not built yet: free-form intents, mainnet execution (deliberately absent), push/email alert channels, Kamino/Morpho/Lista adapters. See [docs/PRODUCT-FEATURE-MATRIX.md](docs/PRODUCT-FEATURE-MATRIX.md).
+Not built yet: mainnet execution (deliberately absent), push/email alert channels, Kamino writes, Morpho (researched) and Lista (blocked) adapters, an LLM explainer for intents. See [docs/PRODUCT-FEATURE-MATRIX.md](docs/PRODUCT-FEATURE-MATRIX.md).
 
 ## CMC endpoints used
 - `/v3/cryptocurrency/quotes/latest` — holdings and asset quotes
@@ -59,6 +64,7 @@ pnpm test:live          # opt-in live reads (Base RPC, Aave feed, CMC keyless)
 pnpm verify:registry    # re-verify registry contracts on-chain + on CMC
 pnpm probe:cmc          # re-probe which CMC endpoints the configured key can access (0 credits on 402)
 pnpm record:aave        # re-record Aave V4 market/positions and cross-check HF math against the Spoke
+pnpm db:migrate         # apply Drizzle migrations to DATABASE_URL (optional; JSON store otherwise)
 pnpm e2e                # Playwright: wallet → analysis → risk → simulation → proof on the fixture dataset
 ```
 
@@ -69,7 +75,9 @@ pnpm fork               # anvil --fork-url <public Base RPC> --chain-id 31337 on
 pnpm start              # open /fork
 pnpm record:fork        # scripted lifecycle + blocked + revert drill → fixtures/fork/*.fork.json
 ```
-The signer refuses any RPC that is not loopback, any chain id other than 31337, and any account that anvil did not generate. Fork test keys stay in a 0600 file under `/tmp/veydara-fork/` (never printed, never committed). Fork tx hashes exist only on the local fork.
+With your own wallet: sign in on `/account`, choose "My wallet (SIWE-proven)" in the Fork Lab and press *Switch / add VEYDARA fork (31337)*. `pnpm e2e:fork` runs that flow end to end with a generated test wallet.
+
+The anvil signer refuses any RPC that is not loopback, any chain id other than 31337, and any account that anvil did not generate. Fork test keys stay in a 0600 file under `/tmp/veydara-fork/` (never printed, never committed). Fork tx hashes exist only on the local fork.
 
 ## Supported chains
 Base (8453) — scan, identity, Aave V4 reserves/positions/oracle. Solana mainnet — scan, identity. Ethereum/BNB: architecture only.
@@ -78,6 +86,6 @@ Base (8453) — scan, identity, Aave V4 reserves/positions/oracle. Solana mainne
 [Architecture](docs/ARCHITECTURE.md) · [Feature matrix](docs/PRODUCT-FEATURE-MATRIX.md) · [CMC credit strategy](docs/CMC-API-CREDIT-STRATEGY.md) · [Sources & claims](docs/SOURCES-AND-CLAIMS.md) · [Issuer eligibility](docs/ISSUER-ELIGIBILITY.md) · [Protocol adapters](docs/PROTOCOL-ADAPTERS.md) · [Financial models](docs/FINANCIAL-MODELS.md) · [Security](docs/SECURITY.md) · [Execution runbook](docs/EXECUTION-RUNBOOK.md) · [Demo script](docs/DEMO-SCRIPT.md)
 
 ## Disclaimer
-VEYDARA is research software. It is not investment, legal or tax advice, does not recommend buying, selling or borrowing, and in this release cannot sign or send transactions. Tokenized securities are subject to issuer- and jurisdiction-specific eligibility rules that VEYDARA has not verified for you.
+VEYDARA is research software. It is not investment, legal or tax advice, does not recommend buying, selling or borrowing, and in this release cannot sign or send mainnet transactions (fork chain 31337 only). Tokenized securities are subject to issuer- and jurisdiction-specific eligibility rules that VEYDARA has not verified for you.
 
 MIT licensed.

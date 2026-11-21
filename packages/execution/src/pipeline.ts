@@ -27,6 +27,8 @@ export interface PipelineContext {
   rpcUrl: string;
   accounts: ForkAccounts;
   policyMinHfWad: bigint;
+  /** Wallets the signed-in user proved with SIWE (for signer "wallet"). */
+  ownedWallets?: readonly string[];
 }
 
 export interface Prepared {
@@ -46,6 +48,8 @@ export interface Prepared {
 export interface ExecutionRecord {
   kind: "fork-execution";
   label: "FORK";
+  /** Absent on records made before wallet signing existed (= anvil test account). */
+  signer?: "anvil-test-account" | "wallet";
   id: string;
   createdAt: string;
   drill: boolean;
@@ -61,13 +65,13 @@ export interface ExecutionRecord {
   before: PositionSummary | null;
   after: PositionSummary | null;
   reconciliation: Reconciliation | null;
-  outcome: "executed" | "reverted" | "blocked";
+  outcome: "executed" | "reverted" | "blocked" | "incomplete";
   outcomeDetail: string;
   stages: Stage[];
   sources: { abi: typeof AAVE_V4_SOURCE; addresses: typeof AAVE_V4_BASE_SOURCE };
 }
 
-async function timed<T>(stages: Stage[], id: StageId, fn: () => Promise<{ value: T; ok: boolean; detail: string }>): Promise<T | null> {
+export async function timed<T>(stages: Stage[], id: StageId, fn: () => Promise<{ value: T; ok: boolean; detail: string }>): Promise<T | null> {
   const t = Date.now();
   try {
     const r = await fn();
@@ -93,8 +97,8 @@ export async function prepareIntent(ctx: PipelineContext, raw: unknown): Promise
   if (!p.fork) return stop("Fork guard failed — no local Base fork is reachable.");
   const client: PublicClient = forkClient(ctx.rpcUrl);
   const v = await timed(st, "validate", async () => {
-    const r = validateIntent(raw, { testAccounts: ctx.accounts.addresses, reserveCount: 255 });
-    return { value: r, ok: r.ok, detail: r.ok ? `${r.intent!.actions.length} action(s) for anvil test account ${r.intent!.account}` : r.errors.join("; ") };
+    const r = validateIntent(raw, { testAccounts: ctx.accounts.addresses, ownedWallets: ctx.ownedWallets, reserveCount: 255 });
+    return { value: r, ok: r.ok, detail: r.ok ? `${r.intent!.actions.length} action(s) for ${r.intent!.signer === "wallet" ? "SIWE-proven wallet" : "anvil test account"} ${r.intent!.account}` : r.errors.join("; ") };
   });
   if (!v?.ok || !v.intent) return stop(`Validation failed: ${v?.errors.join("; ") ?? "invalid intent"}`);
   p.intent = v.intent;
@@ -129,7 +133,7 @@ export async function prepareIntent(ctx: PipelineContext, raw: unknown): Promise
 export async function executePrepared(ctx: PipelineContext, p: Prepared, opts: { drill?: boolean; fixedGas?: bigint; funding?: FundingRecord[] } = {}): Promise<ExecutionRecord> {
   const stages = [...p.stages];
   const rec: ExecutionRecord = {
-    kind: "fork-execution", label: "FORK", id: p.id, createdAt: new Date().toISOString(), drill: Boolean(opts.drill), fork: p.fork, account: p.intent?.account ?? null, intent: p.intent,
+    kind: "fork-execution", label: "FORK", signer: p.intent?.signer ?? "anvil-test-account", id: p.id, createdAt: new Date().toISOString(), drill: Boolean(opts.drill), fork: p.fork, account: p.intent?.account ?? null, intent: p.intent,
     route: p.route, verdict: p.verdict, simulation: p.simulation, preview: p.preview, funding: opts.funding ?? [], txs: [], before: p.before ? summarise(p.before) : null, after: null, reconciliation: null,
     outcome: "blocked", outcomeDetail: p.blockedReason ?? "", stages, sources: { abi: AAVE_V4_SOURCE, addresses: AAVE_V4_BASE_SOURCE },
   };
@@ -151,6 +155,11 @@ export async function executePrepared(ctx: PipelineContext, p: Prepared, opts: {
     rec.outcomeDetail = "State changed since the preview; nothing was signed.";
     return rec;
   }
+  if (p.intent.signer === "wallet") {
+    stages.push({ id: "signing", status: "skipped", ms: 0, detail: "signer is the user's wallet — use walletBegin/walletFinish" });
+    rec.outcomeDetail = "Wallet-signed intents are never signed by the server.";
+    return rec;
+  }
   const key = ctx.accounts.keyFor(p.intent.account);
   if (!key) {
     stages.push({ id: "signing", status: "fail", ms: 0, detail: "no anvil test key for this account" });
@@ -166,23 +175,33 @@ export async function executePrepared(ctx: PipelineContext, p: Prepared, opts: {
     rec.outcomeDetail = "Signing/sending refused.";
     return rec;
   }
-  rec.txs = sent.txs;
-  const signedN = sent.txs.filter((x) => x.signedChainId !== null).length;
-  stages.push({ id: "signing", status: signedN > 0 ? "pass" : "fail", ms: 0, detail: `${signedN} tx signed locally, chain id 31337` });
+  stages.push({ id: "signing", status: sent.txs.some((x) => x.signedChainId !== null) ? "pass" : "fail", ms: 0, detail: `${sent.txs.filter((x) => x.signedChainId !== null).length} tx signed locally, chain id 31337` });
   stages.push({ id: "sending", status: sent.txs.some((x) => x.hash) ? "pass" : "fail", ms: Date.now() - t, detail: `${sent.txs.filter((x) => x.hash).length} tx sent to the fork RPC ${p.fork?.rpcHost}` });
-  const failed = sent.txs.find((x) => x.status !== "success");
-  stages.push({ id: "receipts", status: failed ? "fail" : "pass", ms: 0, detail: failed ? `step ${failed.stepIndex + 1} ${failed.status}: ${failed.revert?.message ?? ""}` : `${sent.txs.length} receipt(s), all status 1` });
-  const after = await readFreshState(client, p.intent.account).catch(() => null);
+  await finishWithTxs(client, p, rec, sent.txs);
+  return rec;
+}
+
+/** Shared tail: receipts → after-state → reconcile, for both anvil-signed and wallet-signed runs. */
+export async function finishWithTxs(client: PublicClient, p: Prepared, rec: ExecutionRecord, txs: TxRecord[]): Promise<void> {
+  const stages = rec.stages;
+  rec.txs = txs;
+  const failed = txs.find((x) => x.status !== "success");
+  const incomplete = txs.length < p.route.length && !failed;
+  stages.push({ id: "receipts", status: failed || incomplete ? "fail" : "pass", ms: 0, detail: failed ? `step ${failed.stepIndex + 1} ${failed.status}: ${failed.revert?.message ?? ""}` : incomplete ? `${txs.length}/${p.route.length} receipts — route not completed` : `${txs.length} receipt(s), all status 1` });
+  const after = await readFreshState(client, p.intent!.account).catch(() => null);
   rec.after = after ? summarise(after) : null;
   if (failed) {
-    rec.outcome = "reverted";
-    rec.outcomeDetail = `${failed.status === "not-sent" ? "Rejected by the node before sending" : "Reverted on the fork"} at step ${failed.stepIndex + 1} (${failed.kind}): ${failed.revert?.message ?? "unknown"}. Later steps were not sent.`;
+    rec.outcome = failed.status === "reverted" ? "reverted" : "incomplete";
+    rec.outcomeDetail = `${failed.status === "not-sent" ? "Not sent (rejected before broadcast)" : "Reverted on the fork"} at step ${failed.stepIndex + 1} (${failed.kind}): ${failed.revert?.message ?? "unknown"}. Later steps were not sent.`;
     stages.push({ id: "reconcile", status: "skipped", ms: 0, detail: "route did not complete" });
-  } else if (after && p.verdict) {
+  } else if (incomplete) {
+    rec.outcome = "incomplete";
+    rec.outcomeDetail = `Only ${txs.length} of ${p.route.length} steps were submitted.`;
+    stages.push({ id: "reconcile", status: "skipped", ms: 0, detail: "route did not complete" });
+  } else if (after && p.verdict && p.before) {
     rec.reconciliation = reconcile(p.verdict, p.before, after);
     stages.push({ id: "reconcile", status: rec.reconciliation.ok ? "pass" : "fail", ms: 0, detail: `${rec.reconciliation.checks.filter((c) => c.pass).length}/${rec.reconciliation.checks.length} checks; Spoke HF ${hfText(rec.reconciliation.healthFactor.spoke)}` });
     rec.outcome = "executed";
-    rec.outcomeDetail = `All ${sent.txs.length} transaction(s) mined on the fork.`;
+    rec.outcomeDetail = `All ${txs.length} transaction(s) mined on the fork.`;
   }
-  return rec;
 }

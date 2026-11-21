@@ -3,13 +3,14 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/page-header";
 import { AddressBar, ArenaView, useAaveAddress } from "@/components/aave-views";
+import { IntentEngine } from "@/components/intent-engine";
 
 function Inner() {
   const [addr, setAddr] = useAaveAddress();
   return (
     <>
       <AddressBar value={addr} onChange={setAddr} note="Solvers use your existing Aave V4 collateral plus eligible tokenized equities in the wallet (what-if supply), at block-pinned balances." />
-      {addr ? <ArenaView address={addr} showFutures={false} /> : <p className="card p-5 text-[13px] text-muted">Enter a Base address to run the arena.</p>}
+      {addr ? <><IntentEngine address={addr} /><ArenaView address={addr} showFutures={false} /></> : <p className="card p-5 text-[13px] text-muted">Enter a Base address to run the arena.</p>}
     </>
   );
 }

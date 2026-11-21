@@ -114,7 +114,7 @@ export interface ArenaResponse {
  * Solver Arena for a user: existing Aave collateral plus (what-if) any eligible
  * verified tokens in the wallet at their block-pinned balances.
  */
-export async function arenaFor(user: string): Promise<ArenaResponse> {
+export async function arenaInputs(user: string) {
   const market = await aaveMarket();
   const client = makeBaseClient(serverEnv().BASE_RPC_URL);
   const [position, scan] = isFixtureMode()
@@ -131,6 +131,11 @@ export async function arenaFor(user: string): Promise<ArenaResponse> {
     if (!existing) book.collateral.push({ reserveId: res.reserveId, amount: BigInt(h.rawBalance), supplied: false });
   }
   const usdc = market.reserves.find((r) => r.symbol === "USDC" && r.borrowable);
+  return { market, position, book, wallet, usdc };
+}
+
+export async function arenaFor(user: string): Promise<ArenaResponse> {
+  const { market, position, book, wallet, usdc } = await arenaInputs(user);
   const hasExisting = position.reserves.some((r) => r.collateralEnabled && BigInt(r.supplied) > 0n);
   const hasWallet = book.collateral.some((c) => !c.supplied);
   const plans = usdc && book.collateral.length

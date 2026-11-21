@@ -93,7 +93,7 @@ function fundLabel(token: string, amount: string) {
   return sym ? `${units(amount, sym === "USDC" ? 6 : 8, 8)} ${sym}` : `${amount} base units of ${shortAddr(token)}`;
 }
 
-const OUTCOME: Record<ExecutionRecord["outcome"], string> = { executed: "text-mint border-mint/40 bg-mint/10", reverted: "text-danger border-danger/40 bg-danger/10", blocked: "text-amber border-amber/40 bg-amber/10" };
+const OUTCOME: Record<ExecutionRecord["outcome"], string> = { executed: "text-mint border-mint/40 bg-mint/10", reverted: "text-danger border-danger/40 bg-danger/10", blocked: "text-amber border-amber/40 bg-amber/10", incomplete: "text-amber border-amber/40 bg-amber/10" };
 
 export function RecordCard({ rec, origin, open = false }: { rec: ExecutionRecord; origin?: string; open?: boolean }) {
   return (
@@ -101,12 +101,13 @@ export function RecordCard({ rec, origin, open = false }: { rec: ExecutionRecord
       <header className="flex flex-wrap items-center gap-2">
         <ForkTag />
         <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${OUTCOME[rec.outcome]}`}>{rec.outcome}</span>
+        {rec.signer === "wallet" && <span className="rounded-full border border-ice/40 bg-ice/10 px-2 py-0.5 text-[11px] text-ice">signed by user wallet</span>}
         {rec.drill && <span className="rounded-full border border-danger/40 px-2 py-0.5 text-[11px] text-danger">intentional revert drill</span>}
         <h3 className="text-[13.5px] font-medium">{rec.intent?.label ?? "Fork execution"}</h3>
         {origin && <span className="ml-auto text-[11px] text-faint">{origin === "committed-evidence" ? "committed evidence (fixtures/fork)" : "local run"}</span>}
       </header>
       <p className="mt-1 text-[11.5px] text-faint">
-        {new Date(rec.createdAt).toLocaleString()} · anvil chain {rec.fork?.chainId ?? "?"} · Base state forked at block {rec.fork?.forkBlockNumber ?? "?"} via {rec.fork?.upstreamHost ?? "?"} · anvil test account {rec.account ? shortAddr(rec.account) : "—"} · {rec.outcomeDetail}
+        {new Date(rec.createdAt).toLocaleString()} · anvil chain {rec.fork?.chainId ?? "?"} · Base state forked at block {rec.fork?.forkBlockNumber ?? "?"} via {rec.fork?.upstreamHost ?? "?"} · {rec.signer === "wallet" ? "SIWE-proven user wallet" : "anvil test account"} {rec.account ? shortAddr(rec.account) : "—"} · {rec.outcomeDetail}
       </p>
       {rec.funding.length > 0 && (
         <p className="mt-1 text-[11.5px] text-faint">Fork funding: {rec.funding.map((f) => `${fundLabel(f.token, f.amount)} from existing holder ${shortAddr(f.donor)} (${f.donorKind}) by impersonation — tx ${shortAddr(f.txHash, 6)}`).join("; ")}</p>

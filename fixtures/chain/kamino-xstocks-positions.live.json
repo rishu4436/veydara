@@ -1,0 +1,61 @@
+{
+  "protocol": "kamino-lend",
+  "chain": "solana",
+  "market": "5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua",
+  "owner": "Fa7LNzj3SCV364hya9dx9evL29pC1awx24iHeCEwX6vU",
+  "slot": "472097135",
+  "readAt": "2026-11-21T09:58:23.636Z",
+  "obligations": [
+    {
+      "obligation": "7BACsXdze3FporEnXEbuSHStPPQ58tpZuWb7jgsUYmV",
+      "owner": "Fa7LNzj3SCV364hya9dx9evL29pC1awx24iHeCEwX6vU",
+      "deposits": [
+        {
+          "symbol": "NVDAx",
+          "mint": "Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh",
+          "amount": "0.708372",
+          "valueUsd": "89.32"
+        },
+        {
+          "symbol": "GOOGLx",
+          "mint": "XsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN",
+          "amount": "0.170417",
+          "valueUsd": "45.37"
+        },
+        {
+          "symbol": "MSTRx",
+          "mint": "XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ",
+          "amount": "1.554247",
+          "valueUsd": "121.11"
+        }
+      ],
+      "borrows": [
+        {
+          "symbol": "USDC",
+          "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "amount": "94.674199",
+          "valueUsd": "94.66"
+        }
+      ],
+      "totalDepositUsd": "255.80",
+      "totalBorrowUsd": "94.66",
+      "netValueUsd": "161.14",
+      "ltv": 0.37004964361108295,
+      "liquidationLtv": 0.540508953006951,
+      "distanceToLiquidationPct": 31.54
+    }
+  ],
+  "source": {
+    "programId": "KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD",
+    "sdk": "@kamino-finance/klend-sdk@14.0.0",
+    "markets": {
+      "xStocks": {
+        "address": "5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua",
+        "name": "xStocks Market",
+        "source": "https://docs.kamino.com/build/developers/multiply/operations/deposit-xstocks"
+      }
+    },
+    "notIncluded": "Other markets that list xStocks (e.g. curated/hidden markets) are not shown until their address is confirmed from an official Kamino source."
+  },
+  "_recorded": "live read via @kamino-finance/klend-sdk; not edited"
+}

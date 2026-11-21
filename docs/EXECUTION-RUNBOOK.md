@@ -1,10 +1,10 @@
-# Execution runbook (Phase 4 — fork only)
+# Execution runbook (Phases 4–5 — fork only)
 
 **Mainnet execution does not exist in VEYDARA.** All writes go through `packages/execution`, whose guard refuses:
 - any RPC URL whose host is not loopback (`127.0.0.1`, `localhost`, `::1`);
 - any node whose `eth_chainId` ≠ **31337**, that is not anvil (`anvil_nodeInfo`), or that is not running in fork mode;
 - any node where the Aave V4 MAG7 Spoke has no code (i.e. not a Base fork);
-- any account that is not one of the fork's anvil-generated accounts;
+- any account that is not one of the fork's anvil-generated accounts, unless the signer is the user's own SIWE-proven wallet (then VEYDARA never holds a key; see below);
 - any signed transaction whose embedded chain id is not 31337 (checked after signing, before sending).
 
 ## Start the fork
@@ -26,7 +26,7 @@ pnpm fork      # anvil --fork-url https://base-rpc.publicnode.com --chain-id 313
 10. **Signing / sending** — local ECDSA with the anvil key via viem (`prepareTransactionRequest` → `signTransaction` → `sendRawTransaction`) to the fork RPC.
 11. **Receipts** — status per step; a status-0 receipt is replayed at the parent block to decode the custom error; later steps are not sent. A node rejection during gas estimation is recorded as "not sent" with the decoded reason.
 12. **Reconcile** — supplied / debt / wallet / collateral flag vs the verifier's prediction (±2 units rounding; debt within an accrued-interest bound), and VEYDARA bigint HF == Spoke `getUserAccountData` HF.
-13. **Proof record** — JSON with every stage, route, verdict, simulation, preview, funding, receipts, before/after positions and reconciliation. Local runs: `FORK_RECORDS_DIR` (default `/tmp/veydara-fork/records`); committed evidence: `fixtures/fork/`.
+13. **Proof record** — JSON with every stage, route, verdict, simulation, preview, funding, receipts, before/after positions and reconciliation. Local runs: the configured store (Postgres or JSON, see Persistence); committed evidence: `fixtures/fork/`.
 
 Blocked runs (validation, verifier or simulation failure) are also recorded, with nothing signed.
 
@@ -40,3 +40,17 @@ Coinbase tokenized equities are Base **B20** tokens (node-native precompiles; on
 
 ## Emergency Center revoke preparation
 `approve(spender, 0)` or `setUserPositionManager(pm, false)` calldata is built for the user's own wallet (chain 8453) and **simulated as the owner on the fork** inside a reverted snapshot (`anvil_impersonateAccount`), reporting the allowance / manager flag before → after. VEYDARA never signs or sends it.
+
+## User-wallet signing (Phase 5, fork only)
+1. Sign in on `/account` (SIWE); optionally link more wallets (each signs its own message).
+2. Fork Lab → **1 · Signer** → "My wallet (SIWE-proven)". *Fund* sends test tokens from an existing holder on the fork and, if needed, sets 1 ETH for gas with `anvil_setBalance` (fork only).
+3. **Switch / add VEYDARA fork (31337)**: wagmi `switchChain`; on error 4902 the wallet is asked to `wallet_addEthereumChain` with the loopback RPC (`NEXT_PUBLIC_FORK_RPC_URL`, default `http://127.0.0.1:8545`).
+4. Prepare → same pipeline; the simulation impersonates the wallet inside a reverted snapshot.
+5. **Sign with my wallet on fork** → `wallet/begin` re-checks freshness and returns the exact steps; the page refuses to send unless the wallet is on chain 31337; the wallet signs/sends each step and waits for its receipt.
+6. `wallet/finish` checks each tx on the fork (from = wallet, to/calldata/value = preview step, chainId = 31337); mismatches or unsent steps make the run `incomplete` and are not reconciled.
+Mainnet signing is disabled and labelled unavailable. Evidence: `fixtures/fork/wallet-*.fork.json` (recorded by `pnpm e2e:fork` with a per-run generated test wallet).
+
+## Persistence
+- No `DATABASE_URL`: JSON file store (`VEYDARA_DATA_FILE`, default `<repo>/.veydara/data.json`, git-ignored, 0600).
+- With `DATABASE_URL=postgres://…` (e.g. a Neon connection string set in the deploy environment): run `pnpm db:migrate` once, then start the app. No cloud database has been provisioned by this project; Neon is only a configuration option.
+- Local verification used a throwaway Postgres on 127.0.0.1:5433: migrations applied (8 tables) and the fork + fixture e2e suites wrote users, wallets, sessions, nonces and proofs to it.

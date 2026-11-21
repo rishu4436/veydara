@@ -1,7 +1,8 @@
 /**
  * Stage 5 — simulation on the fork, inside an anvil snapshot that is ALWAYS reverted.
  * Each step is first eth_call'ed (to capture a decoded revert) and then applied with
- * the fork's own unlocked test account so later steps see earlier effects. Nothing
+ * the account impersonated inside the snapshot (anvil test account or the user's wallet address)
+ * so later steps see earlier effects; impersonation is stopped before the snapshot is reverted. Nothing
  * persists; the real run happens only after the human-readable preview is confirmed.
  */
 import type { Address, Hex, PublicClient } from "viem";
@@ -40,6 +41,7 @@ export async function simulateOnFork(client: PublicClient, account: Address, rou
   const suppliedAfter: Record<number, string> = {};
   const debtAfter: Record<number, string> = {};
   let reverted = false;
+  await rpc(client, "anvil_impersonateAccount", [account]);
   try {
     for (const st of route) {
       try {
@@ -50,7 +52,11 @@ export async function simulateOnFork(client: PublicClient, account: Address, rou
         firstRevert = { ...rv, stepIndex: st.index };
         break;
       }
-      const hash = (await rpc(client, "eth_sendTransaction", [{ from: account, to: st.to, data: st.data }])) as Hex;
+      // Explicit gas with headroom: anvil's implicit estimate is taken at a different timestamp than the mined
+      // block, and interest-index accrual can make it a few hundred gas short (observed on Aave V4 repay).
+      const est = await client.estimateGas({ account, to: st.to, data: st.data });
+      const gas = `0x${((est * 13n) / 10n).toString(16)}`;
+      const hash = (await rpc(client, "eth_sendTransaction", [{ from: account, to: st.to, data: st.data, gas }])) as Hex;
       const rc = await waitReceipt(client, hash);
       steps.push({ index: st.index, kind: st.kind, ok: rc.status === "success", gasUsed: rc.gasUsed.toString(), revert: null });
       if (rc.status !== "success") {
@@ -68,6 +74,7 @@ export async function simulateOnFork(client: PublicClient, account: Address, rou
       });
     }
   } finally {
+    await rpc(client, "anvil_stopImpersonatingAccount", [account]).catch(() => null);
     reverted = Boolean(await rpc(client, "evm_revert", [snap]));
   }
   return { ok: firstRevert === null, steps, firstRevert, healthFactorWadAfter: hfAfter, suppliedAfter, debtAfter, snapshotReverted: reverted };

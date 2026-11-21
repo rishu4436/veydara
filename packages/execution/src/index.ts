@@ -13,3 +13,4 @@ export * from "./accounts";
 export * from "./records";
 export * from "./pipeline";
 export * from "./owner-sim";
+export * from "./wallet-exec";

@@ -10,7 +10,8 @@ import { CommandPalette } from "./command-palette";
 import { WalletButton } from "./wallet-button";
 import { CapabilityBadge } from "./badge";
 import { getJson, shortAddr, type CapabilitiesResponse } from "@/lib/client/api";
-import { useGuardian } from "@/lib/client/guardian-store";
+import { guardian, useGuardian } from "@/lib/client/guardian-store";
+import { useSession } from "@/lib/client/session";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +21,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(true);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const g = useGuardian();
+  const session = useSession();
+  const signedIn = Boolean(session.data?.authenticated);
+  useEffect(() => {
+    void guardian.attachServer(signedIn);
+  }, [signedIn]);
   const activeAlerts = g.inbox.filter((a) => a.active && !a.acked);
   const dataset = useQuery({ queryKey: ["dataset"], queryFn: () => getJson<{ mode: "live" | "fixture" }>("/api/dataset"), staleTime: Infinity });
   const caps = useQuery({ queryKey: ["capabilities"], queryFn: () => getJson<CapabilitiesResponse>("/api/capabilities"), staleTime: 60_000 });

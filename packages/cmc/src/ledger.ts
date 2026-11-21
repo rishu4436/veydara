@@ -28,10 +28,16 @@ export interface LedgerSummary {
 
 export class CreditLedger {
   private entries: LedgerEntry[] = [];
-  constructor(private readonly max = 2000) {}
+  /** `sink` receives every entry (e.g. to persist the ledger to Postgres). It must never throw. */
+  constructor(private readonly max = 2000, private readonly sink?: (e: LedgerEntry) => void) {}
 
   record(e: LedgerEntry): void {
     this.entries.push(e);
+    try {
+      this.sink?.(e);
+    } catch {
+      /* persistence is best-effort; the in-memory ledger stays authoritative for this process */
+    }
     if (this.entries.length > this.max) this.entries.splice(0, this.entries.length - this.max);
   }
 

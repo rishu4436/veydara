@@ -89,12 +89,16 @@ Credits consumed by the probe: **0** (all 402s report `credit_count` 0). Consequ
 | Coinbase tokenized equities are Base **B20** Asset tokens (node-native precompiles; 1-byte `0xef` code stub at `0xb2…` addresses) | https://docs.base.org/specifications/b20/ (IB20Factory reference); verified `eth_getCode` = `0xef` for NVDAc | anvil 1.10 executes B20 transfers/approvals on a Base fork (fork receipts) |
 | Fork evidence (2026-11-21, Base block 60315121, anvil chain 31337): supply+collateral+borrow (4 tx), partial repay (2 tx), withdraw (1 tx), all status 1 and reconciled (VEYDARA HF = Spoke HF); a policy-blocked borrow (not signed); a revert drill (status 0, decoded `HealthFactorBelowThreshold()`) | `fixtures/fork/` | **FORK ONLY** — these hashes do not exist on Base mainnet |
 
+| Wallet-signed fork evidence (2026-11-21, anvil chain 31337 forked from Base 60315121): a SIWE-proven test wallet signed supply+collateral+borrow (4 tx), partial repay (2 tx) and withdraw (1 tx), all status 1, each matched to the preview and reconciled; a policy-blocked borrow was never handed to the wallet | `fixtures/fork/wallet-*.fork.json`, `tests/e2e-fork/wallet.spec.ts` | **FORK ONLY** — the test wallet key was generated per run and discarded |
+| Kamino program `KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD` and xStocks market `5wJeMrUYECGq41fxRESKALVcHnNX26TAWy4W98yULsua` | klend-sdk `PROGRAM_ID`; Kamino docs xStocks deposit guide (https://docs.kamino.com) | Live read at slot 472097135: `fixtures/chain/kamino-xstocks-*.live.json` |
+| Morpho Steakhouse markets accept Coinbase equities on Base; Lista bStocks use Binance bStocks + Atlas oracle on BNB | sources listed in `packages/protocols/src/capabilities.ts` | Researched only — nothing shown as eligible |
+
 ## 4. Market calendar
 
 NYSE 2026 holidays and early closes encoded in `packages/domain/src/market-session.ts` follow https://www.nyse.com/markets/hours-calendars — **re-verify against the page before relying on it** (recorded from the published calendar, not machine-fetched in this run).
 
 ## 5. Not claimed
 
-- No transaction has been signed for, or sent to, Base mainnet. Fork transactions (chain 31337) are labelled FORK everywhere and were signed only with anvil-generated test keys.
+- No transaction has been signed for, or sent to, Base mainnet. Fork transactions (chain 31337) are labelled FORK everywhere and were signed only with anvil-generated test keys or a per-run generated test wallet through the injected-wallet flow.
 - Borrow parameters shown are read live from the Spoke/Hub; VEYDARA does not claim the user is eligible to use the Equities Hub.
 - No performance, PnL or TVL figure is computed.

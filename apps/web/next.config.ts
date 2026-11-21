@@ -10,7 +10,8 @@ const securityHeaders = [
 
 const config: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@veydara/domain", "@veydara/cmc", "@veydara/chains", "@veydara/quant", "@veydara/protocols", "@veydara/execution"],
+  serverExternalPackages: ["pg", "@kamino-finance/klend-sdk"],
+  transpilePackages: ["@veydara/domain", "@veydara/cmc", "@veydara/chains", "@veydara/quant", "@veydara/protocols", "@veydara/execution", "@veydara/store", "@veydara/intent", "@veydara/auth", "@veydara/kamino"],
   turbopack: { root: path.join(import.meta.dirname, "../..") },
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),
   images: { remotePatterns: [{ protocol: "https", hostname: "s2.coinmarketcap.com" }] },

@@ -10,9 +10,14 @@ const EnvSchema = z.object({
   /** Local anvil fork (loopback only — enforced again in @veydara/execution). */
   FORK_RPC_URL: z.url().default("http://127.0.0.1:8545"),
   FORK_ACCOUNTS_FILE: z.string().default("/tmp/veydara-fork/anvil-accounts.json"),
-  FORK_RECORDS_DIR: z.string().default("/tmp/veydara-fork/records"),
   /** "fixture" serves the committed, labelled snapshots instead of live reads (e2e / offline demo). */
   VEYDARA_DATASET: z.enum(["live", "fixture"]).default("live"),
+  /** Postgres (e.g. Neon). Unset → local JSON fallback. Never logged. */
+  DATABASE_URL: z.string().regex(/^postgres(ql)?:\/\//, "must be a postgres:// URL").optional(),
+  VEYDARA_DATA_FILE: z.string().optional(),
+  /** Public origin used to check SIWE `domain`/`uri` when behind a proxy (e.g. https://veydara.vercel.app). */
+  VEYDARA_PUBLIC_ORIGIN: z.url().optional(),
+  VERCEL: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof EnvSchema>;
