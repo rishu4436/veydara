@@ -1,0 +1,78 @@
+{
+ "_fixture": {
+  "kind": "documentation-example",
+  "endpoint": "/v5/real-world-assets/quotes/latest",
+  "source": "https://coinmarketcap.com/api/documentation/pro-api-reference/real-world-assets/",
+  "retrievedAt": "2026-11-21",
+  "note": "FIXTURE copied from the CMC docs response example. NOT live data. Used only for schema contract tests."
+ },
+ "data": {
+  "rwa_assets": [
+   {
+    "name": "Nvidia Corp",
+    "symbol": "NVDA",
+    "slug": "nvidia",
+    "quotes": [
+     {
+      "symbol": "USD",
+      "crypto_id": 2781,
+      "average_tokenized_price": 226.4599992554912,
+      "tokenized_market_cap": 117414402.19394198,
+      "tokenized_volume_24h": 79320399.19936948,
+      "last_updated": "2026-09-09T06:49:59.000Z"
+     }
+    ],
+    "rwa_id": 2,
+    "asset_type": "stock",
+    "rwa_rank": 2,
+    "has_tokens": true,
+    "average_tokenized_price": 226.4599992554912,
+    "tokenized_market_cap": 117414402.19394198,
+    "tokenized_volume_24h": 79320399.19936948,
+    "last_updated": "2026-09-09T06:50:33.594Z",
+    "tokens": [
+     {
+      "symbol": "NVDAX",
+      "name": "NVIDIA tokenized stock (xStock)",
+      "price": 226.33422377299925,
+      "crypto_id": 36992,
+      "issuer_id": "6878977dcbbf471de3366e85",
+      "issuer_name": "Backed Assets",
+      "market_cap": 39526066.25,
+      "volume_24h": 12187859.2729597
+     },
+     {
+      "symbol": "NVDAon",
+      "name": "NVIDIA Tokenized Stock (Ondo)",
+      "price": 226.5005458510576,
+      "crypto_id": 38093,
+      "issuer_id": "688ca4ccabae9b5b9fb3167a",
+      "issuer_name": "Ondo Assets",
+      "market_cap": 38222994.66,
+      "volume_24h": 2634471.69806766
+     }
+    ],
+    "tradfi_markets": [
+     {
+      "exchange": {
+       "slug": "binance",
+       "name": "Binance",
+       "exchange_id": 270
+      },
+      "ticker": "NVDA",
+      "market_url": "https://www.binance.com/en/stocks/EQ_NVDA"
+     }
+    ]
+   }
+  ]
+ },
+ "status": {
+  "timestamp": "2026-03-05T22:43:48.471Z",
+  "error_code": 0,
+  "error_message": "",
+  "elapsed": 10,
+  "credit_count": 1,
+  "notice": "",
+  "total_count": 8128
+ }
+}

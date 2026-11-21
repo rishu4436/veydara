@@ -1,0 +1,46 @@
+{
+ "_fixture": {
+  "kind": "documentation-example",
+  "endpoint": "/v5/real-world-assets/map",
+  "source": "https://coinmarketcap.com/api/documentation/pro-api-reference/real-world-assets/",
+  "retrievedAt": "2026-11-21",
+  "note": "FIXTURE copied from the CMC docs response example. NOT live data. Used only for schema contract tests."
+ },
+ "data": {
+  "rwa_assets": [
+   {
+    "name": "Gold",
+    "symbol": "GOLD",
+    "slug": "gold",
+    "rwa_id": 1,
+    "asset_type": "commodity",
+    "rwa_rank": 1,
+    "has_tokens": true,
+    "first_historical_data": "2009-09-27T00:00:00.000Z",
+    "last_historical_data": "2026-07-08T10:29:00.000Z"
+   },
+   {
+    "name": "Nvidia Corp",
+    "symbol": "NVDA",
+    "slug": "nvidia",
+    "rwa_id": 2,
+    "asset_type": "stock",
+    "rwa_rank": 2,
+    "has_tokens": true,
+    "first_historical_data": "2003-09-07T04:00:00.000Z",
+    "last_historical_data": "2026-07-08T10:29:00.000Z"
+   }
+  ],
+  "total_size": 7805,
+  "has_more": true
+ },
+ "status": {
+  "timestamp": "2026-03-05T22:43:48.471Z",
+  "error_code": 0,
+  "error_message": "",
+  "elapsed": 10,
+  "credit_count": 1,
+  "notice": "",
+  "total_count": 8128
+ }
+}

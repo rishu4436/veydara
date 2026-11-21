@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: Secret scan (no CMC keys / private keys committed)
+        run: |
+          ! git grep -nE "X-CMC_PRO_API_KEY['\"]?\s*[:=]\s*['\"][0-9a-f]{8}-" -- . ':!*.md' || (echo "possible CMC key committed" && exit 1)
+          ! git grep -nE "(PRIVATE_KEY|MNEMONIC|SEED_PHRASE)\s*=\s*\S+" -- . ':!.env.example' ':!*.md' || (echo "possible secret committed" && exit 1)
+      - run: pnpm audit --prod --audit-level high || true

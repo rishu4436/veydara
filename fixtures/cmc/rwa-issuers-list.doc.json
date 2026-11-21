@@ -1,0 +1,38 @@
+{
+ "_fixture": {
+  "kind": "documentation-example",
+  "endpoint": "/v5/real-world-assets/issuers/list",
+  "source": "https://coinmarketcap.com/api/documentation/pro-api-reference/real-world-assets/",
+  "retrievedAt": "2026-11-21",
+  "note": "FIXTURE copied from the CMC docs response example. NOT live data. Used only for schema contract tests."
+ },
+ "data": {
+  "issuers": [
+   {
+    "name": "Backed Assets",
+    "website": "https://assets.backed.fi/",
+    "logo": null,
+    "issuer_id": "6878977dcbbf471de3366e85",
+    "num_tokens": 147
+   },
+   {
+    "name": "Backpack",
+    "website": "https://backpack.exchange",
+    "logo": "https://s2.coinmarketcap.com/static/img/issuer/M7sS2GzR_400x400.png",
+    "issuer_id": "6a2d54b697c45356b1a634f4",
+    "num_tokens": 1
+   }
+  ],
+  "total_size": 24,
+  "has_more": true
+ },
+ "status": {
+  "timestamp": "2026-03-05T22:43:48.471Z",
+  "error_code": 0,
+  "error_message": "",
+  "elapsed": 10,
+  "credit_count": 1,
+  "notice": "",
+  "total_count": 8128
+ }
+}

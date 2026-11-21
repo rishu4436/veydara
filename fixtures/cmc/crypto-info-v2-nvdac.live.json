@@ -1,0 +1,90 @@
+{
+ "_fixture": {
+  "kind": "recorded-live-response",
+  "endpoint": "/public-api/v2/cryptocurrency/info?address=0xb20000000000000000000078ee7ce2fE4908108C",
+  "recordedAt": "2026-11-21T07:59:38.784Z",
+  "httpStatus": 200,
+  "note": "FIXTURE: real keyless CMC response recorded for schema contract tests. Not used to render live UI."
+ },
+ "data": {
+  "42461": {
+   "id": 42461,
+   "name": "NVIDIA Corporation Tokenized Stock (Coinbase)",
+   "symbol": "NVDAc",
+   "category": "token",
+   "description": "NVIDIA Corporation Tokenized Stock (Coinbase) (NVDAc) is a cryptocurrency and operates on the Base platform. NVIDIA Corporation Tokenized Stock (Coinbase) has a current supply of 62,019.73777574. The last known price of NVIDIA Corporation Tokenized Stock (Coinbase) is 128.69189505 USD and is down -10.67 over the last 24 hours. It is currently trading on 18 active market(s) with $20,320,386.24 traded over the last 24 hours.",
+   "slug": "nvidia-corporation-tokenized-stock-coinbase",
+   "logo": "https://s2.coinmarketcap.com/static/img/coins/64x64/42461.png",
+   "subreddit": "",
+   "notice": "",
+   "tags": [
+    "defi",
+    "tokenized-stock",
+    "base-ecosystem",
+    "tokenized-assets",
+    "coinbase-ecosystem"
+   ],
+   "tag-names": [
+    "DeFi",
+    "Tokenized Stock",
+    "Base Ecosystem",
+    "Tokenized Assets",
+    "Coinbase Ecosystem"
+   ],
+   "tag-groups": [
+    "CATEGORY",
+    "CATEGORY",
+    "PLATFORM",
+    "CATEGORY",
+    "CATEGORY"
+   ],
+   "urls": {
+    "website": [],
+    "twitter": [],
+    "message_board": [],
+    "chat": [],
+    "facebook": [],
+    "explorer": [
+     "https://basescan.org/token/0xb20000000000000000000078ee7ce2fE4908108C"
+    ],
+    "reddit": [],
+    "technical_doc": [],
+    "source_code": [],
+    "announcement": []
+   },
+   "platform": {
+    "id": "27716",
+    "name": "Base",
+    "symbol": "-",
+    "slug": "base",
+    "token_address": "0xb20000000000000000000078ee7ce2fE4908108C"
+   },
+   "date_added": "2026-10-08T03:59:53.000Z",
+   "twitter_username": "",
+   "is_hidden": 0,
+   "contract_address": [
+    {
+     "contract_address": "0xb20000000000000000000078ee7ce2fE4908108C",
+     "platform": {
+      "name": "Base",
+      "coin": {
+       "id": "27716",
+       "name": "Base",
+       "symbol": "-",
+       "slug": "base"
+      }
+     }
+    }
+   ],
+   "infinite_supply": false
+  }
+ },
+ "status": {
+  "timestamp": "2026-11-21T07:59:38.577Z",
+  "error_code": 0,
+  "error_message": null,
+  "elapsed": 6,
+  "credit_count": 1,
+  "notice": null
+ }
+}

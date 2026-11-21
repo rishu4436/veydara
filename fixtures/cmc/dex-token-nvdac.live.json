@@ -1,0 +1,201 @@
+{
+ "_fixture": {
+  "kind": "recorded-live-response",
+  "endpoint": "/public-api/v1/dex/token?platform=base&address=0xb20000000000000000000078ee7ce2fE4908108C",
+  "recordedAt": "2026-11-21T07:59:44.659Z",
+  "httpStatus": 200,
+  "note": "FIXTURE: real keyless CMC response recorded for schema contract tests. Not used to render live UI."
+ },
+ "data": {
+  "n": "NVIDIA Corporation",
+  "sym": "NVDAc",
+  "addr": "0xb20000000000000000000078ee7ce2fe4908108c",
+  "plt": "Base",
+  "pdex": "Base",
+  "pcid": 27716,
+  "pid": 199,
+  "dec": 8,
+  "web": "https://www.coinbase.com/zh-cn/tokenize",
+  "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/42461.png",
+  "pubAt": "1785938549000",
+  "lchAt": "1788899983000",
+  "mcap": "7977404.757463168910778622",
+  "ts": "62053.100647205627873419",
+  "liqUsd": "2261937.370044409850335684",
+  "p": "128.557713865381310371",
+  "ph24h": "144.949324657385789287",
+  "pl24h": "102.737125152249810603",
+  "pt": "1795247943000",
+  "fpt": "1786563061000",
+  "fpct": "1785336297000",
+  "sts": [
+   {
+    "tp": "5m",
+    "vu": "109391.116412720846909531",
+    "txs": "101",
+    "nb": "57",
+    "ns": "44",
+    "bvu": "61788.443255770344596566",
+    "svu": "47602.673156950502312966",
+    "but": "34",
+    "sut": "29",
+    "pc": -0.0005,
+    "ut": "51"
+   },
+   {
+    "tp": "1h",
+    "vu": "865872.734335175093133044",
+    "txs": "1528",
+    "nb": "656",
+    "ns": "872",
+    "bvu": "372972.648517491807324787",
+    "svu": "492900.085817683285808258",
+    "but": "193",
+    "sut": "222",
+    "pc": -0.008,
+    "ut": "287"
+   },
+   {
+    "tp": "4h",
+    "vu": "3809478.017265130079185792",
+    "txs": "7168",
+    "nb": "3461",
+    "ns": "3707",
+    "bvu": "1909025.759127384869186155",
+    "svu": "1900452.258137745209999638",
+    "but": "621",
+    "sut": "642",
+    "pc": 0.0034,
+    "ut": "750"
+   },
+   {
+    "tp": "24h",
+    "vu": "21661724.217219420352886719",
+    "txs": "43730",
+    "nb": "21441",
+    "ns": "22289",
+    "bvu": "10488505.873120548810682589",
+    "svu": "11173218.34409887154220413",
+    "but": "1613",
+    "sut": "1571",
+    "pc": -0.1068,
+    "ut": "1934"
+   },
+   {
+    "tp": "1m",
+    "vu": "17504.309850681349786822",
+    "txs": "19",
+    "nb": "15",
+    "ns": "4",
+    "bvu": "17026.796591073403946401",
+    "svu": "477.513259607945840421",
+    "but": "7",
+    "sut": "4",
+    "pc": 0.0012,
+    "ut": "10"
+   }
+  ],
+  "pls": [
+   {
+    "addr": "0xf668e21993f0acd7ab00bb1cfbaed0df28a3c8ec",
+    "v24": "16909741.744176812705330572",
+    "pubAt": "1792560315000",
+    "t0": {
+     "addr": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+     "n": "USD Coin",
+     "sym": "USDC",
+     "liq": "236395.624356",
+     "liqUsd": "236371.233639094923844587"
+    },
+    "t1": {
+     "addr": "0xb20000000000000000000078ee7ce2fe4908108c",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/42461.png",
+     "n": "NVIDIA Corporation",
+     "sym": "NVDAc",
+     "liq": "8473.909015092969651495",
+     "liqUsd": "1089397.209968192304427674"
+    },
+    "bidx": 1,
+    "exid": 35102,
+    "exn": "Aero Slipstream (Base)",
+    "liqUsd": "1325768.44360728722827226",
+    "fa": "0x9cb220581b91b0c83223012fe69688b92ad07a76",
+    "mi": false
+   },
+   {
+    "addr": "0x853f5f1b92b16714fe6cda67caad0856b83c7ab9",
+    "v24": "14945.31388134015503984",
+    "pubAt": "1785336297000",
+    "t0": {
+     "addr": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+     "n": "USD Coin",
+     "sym": "USDC",
+     "liq": "18047.656367",
+     "liqUsd": "18043.840602106590649348"
+    },
+    "t1": {
+     "addr": "0xb20000000000000000000078ee7ce2fe4908108c",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/42461.png",
+     "n": "NVIDIA Corporation",
+     "sym": "NVDAc",
+     "liq": "1791.008358756251019841",
+     "liqUsd": "229971.09903783042315728"
+    },
+    "bidx": 1,
+    "exid": 33537,
+    "exn": "Aerodrome Slipstream 3",
+    "liqUsd": "248014.939639937013806627",
+    "fa": "0xf8f2eb4940cfe7d13603dddd87f123820fc061ef",
+    "mi": false
+   },
+   {
+    "addr": "0xe82fa069a5e01a6dc36c6736b5de4f721d726291b080c69b48e21b9c5a11a2ad",
+    "v24": "0",
+    "pubAt": "1787124861000",
+    "t0": {
+     "addr": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+     "n": "USD Coin",
+     "sym": "USDC",
+     "liq": "7921.41429",
+     "liqUsd": "7919.868052467123386285"
+    },
+    "t1": {
+     "addr": "0xb20000000000000000000078ee7ce2fe4908108c",
+     "lg": "https://s2.coinmarketcap.com/static/img/coins/64x64/42461.png",
+     "n": "NVIDIA Corporation",
+     "sym": "NVDAc",
+     "liq": "1031.210685368971321162",
+     "liqUsd": "166415.40498133263268806"
+    },
+    "bidx": 1,
+    "exid": 11951,
+    "exn": "Uniswap v4 (Base)",
+    "liqUsd": "174335.273033799756074345",
+    "fa": "0x498581ff718922c3f8e6a244956af099b2652b2b",
+    "mi": false
+   }
+  ],
+  "turl": "https://aerodrome.finance/",
+  "nps": "10",
+  "tsrc": "bankr",
+  "rl": "safe",
+  "lf": 1,
+  "cid": 42461,
+  "lmc": "7977427.793328351650369778",
+  "lsmc": "7977427.793328351650369778",
+  "ltcs": "62053.100647205627873419",
+  "ltda": "1791431993000",
+  "cexs": [],
+  "la": 0
+ },
+ "status": {
+  "timestamp": "2026-11-21T07:59:44.416Z",
+  "error_code": "0",
+  "error_message": "",
+  "elapsed": 190,
+  "credit_count": 1
+ }
+}

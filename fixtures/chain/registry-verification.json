@@ -1,0 +1,126 @@
+{
+ "verifiedAt": "2026-11-21T08:16:59.046Z",
+ "baseBlock": "60293217",
+ "results": {
+  "USDC": {
+   "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+   "onchainSymbol": "USDC",
+   "decimals": 6,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 3408,
+    "name": "USDC",
+    "symbol": "USDC",
+    "slug": "usd-coin"
+   }
+  },
+  "WETH": {
+   "address": "0x4200000000000000000000000000000000000006",
+   "onchainSymbol": "WETH",
+   "decimals": 18,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 2396,
+    "name": "WETH",
+    "symbol": "WETH",
+    "slug": "weth"
+   }
+  },
+  "AAPLc": {
+   "address": "0xb200000000000000000000C2e324d24d7eEcd1fb",
+   "onchainSymbol": "AAPLc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42427,
+    "name": "Apple Inc. Tokenized Stock (Coinbase)",
+    "symbol": "AAPLc",
+    "slug": "apple-inc-tokenized-stock-coinbase"
+   }
+  },
+  "AMZNc": {
+   "address": "0xb200000000000000000000d9192b6B456483C2E8",
+   "onchainSymbol": "AMZNc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42425,
+    "name": "Amazon.com Inc. Tokenized Stock (Coinbase)",
+    "symbol": "AMZNc",
+    "slug": "amazoncom-inc-tokenized-stock-coinbase"
+   }
+  },
+  "GOOGLc": {
+   "address": "0xb2000000000000000000002D0BA3164cc74f58B7",
+   "onchainSymbol": "GOOGLc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42421,
+    "name": "Alphabet Inc. Tokenized Stock (Coinbase)",
+    "symbol": "GOOGLc",
+    "slug": "alphabet-inc-tokenized-stock-coinbase"
+   }
+  },
+  "METAc": {
+   "address": "0xb2000000000000000000008bC8786B856E61707C",
+   "onchainSymbol": "METAc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42440,
+    "name": "Meta Platforms Inc. Tokenized Stock (Coinbase)",
+    "symbol": "METAc",
+    "slug": "meta-platforms-inc-tokenized-stock-coinbase"
+   }
+  },
+  "MSFTc": {
+   "address": "0xB200000000000000000000Ab99cFa739E253872B",
+   "onchainSymbol": "MSFTc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42494,
+    "name": "Microsoft Corporation Tokenized Stock (Coinbase)",
+    "symbol": "MSFTc",
+    "slug": "microsoft-corporation-tokenized-stock-coinbase"
+   }
+  },
+  "NVDAc": {
+   "address": "0xb20000000000000000000078ee7ce2fE4908108C",
+   "onchainSymbol": "NVDAc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42461,
+    "name": "NVIDIA Corporation Tokenized Stock (Coinbase)",
+    "symbol": "NVDAc",
+    "slug": "nvidia-corporation-tokenized-stock-coinbase"
+   }
+  },
+  "TSLAc": {
+   "address": "0xb2000000000000000000001e800a7f5189430cD0",
+   "onchainSymbol": "TSLAc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42490,
+    "name": "Tesla Inc. Tokenized Stock (Coinbase)",
+    "symbol": "TSLAc",
+    "slug": "tesla-inc-tokenized-stock-coinbase"
+   }
+  },
+  "SPCXc": {
+   "address": "0xb2000000000000000000007b9fcbd005511aCBd5",
+   "onchainSymbol": "SPCXc",
+   "decimals": 8,
+   "symbolMatches": true,
+   "cmc": {
+    "id": 42487,
+    "name": "Space Exploration Technologies Corp. Tokenized Stock (Coinbase)",
+    "symbol": "SPCXc",
+    "slug": "space-exploration-technologies-corp-tokenized-stock-coinbase"
+   }
+  }
+ }
+}

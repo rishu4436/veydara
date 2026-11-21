@@ -1,0 +1,16 @@
+{
+  "name": "@veydara/protocols",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@veydara/domain": "workspace:*",
+    "@veydara/chains": "workspace:*",
+    "viem": "^2.58.0"
+  }
+}
