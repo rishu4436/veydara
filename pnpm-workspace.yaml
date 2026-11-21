@@ -8,3 +8,7 @@ onlyBuiltDependencies:
   - utf-8-validate
   - keccak
   - secp256k1
+overrides:
+  # rpc-websockets (pulled in by @solana/web3.js via the Kamino SDK) require()s uuid; uuid 14 is ESM-only and
+  # fails with ERR_REQUIRE_ESM on Vercel's Node runtime. 11.x ships CJS with the same v1 API it uses.
+  "rpc-websockets>uuid": "^11.1.0"
