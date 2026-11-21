@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "motion/react";
 import type { AssetIntel } from "@/lib/server/asset";
 import type { PortfolioResponse } from "@/lib/server/portfolio";
-import type { Candle, ZoneResult } from "@veydara/quant";
 import type { Provenance } from "@veydara/domain";
 import { fmtUsd, getJson, shortAddr } from "@/lib/client/api";
 import { useVeydaraWallet } from "@/lib/client/wallet-context";
 import { IdentityBadge, CapabilityBadge } from "./badge";
 import { ProvenanceChip } from "./provenance";
 import { RiskClock } from "./risk-clock";
-import { PriceChart } from "./price-chart";
+import { AaveReservePanel, ChartPanel, IssuerGraphPanel, ResearchPanel } from "./analysis";
 import { I } from "./icons";
 
 type Unavail = { status: "unavailable"; code: string; reason: string };
@@ -79,11 +78,13 @@ export function AssetStage({ chain, address }: { chain: string; address: string 
                   <RiskClock session={a.session} oracleUpdatedAt={a.aave.listed && a.aave.oracle.status === "ok" ? a.aave.oracle.updatedAt : null} oracleAgeSec={a.aave.listed && a.aave.oracle.status === "ok" ? a.aave.oracle.ageSeconds : null} />
                 </Panel>
               )}
-              <Lending a={a} />
+              {a.aave.listed ? <AaveReservePanel underlying={a.address} /> : <Lending a={a} />}
               <Dex a={a} />
             </div>
           </div>
-          <ChartPanel a={a} />
+          <ChartPanel chain={a.chain} address={a.address} />
+          <ResearchPanel chain={a.chain} address={a.address} />
+          {v?.underlying && v.assetClass === "tokenized-equity" && <IssuerGraphPanel underlying={v.underlying.symbol} thisCmcId={a.cmcListing.status === "ok" ? a.cmcListing.cmcId : (v.cmcId ?? null)} />}
         </>
       )}
       <p className="text-[11px] leading-4 text-faint">Research, not advice. VEYDARA shows sourced facts and explicit unknowns; it does not recommend buying, selling or borrowing.</p>
@@ -237,49 +238,6 @@ function Dex({ a }: { a: AssetIntel }) {
         </div>
       ) : (
         <Unavailable u={a.dex} />
-      )}
-    </Panel>
-  );
-}
-
-type OhlcvResp = { status: "ok"; candles: Candle[]; indicators: { ema50: (number | null)[]; rsi14: (number | null)[]; sma20: (number | null)[] }; zones: ZoneResult; provenance: Provenance } | { status: "unavailable"; code: string; reason: string };
-
-function ChartPanel({ a }: { a: AssetIntel }) {
-  const [interval, setInterval] = useState<"1h" | "4h" | "1d" | "1w">("1d");
-  const [requested, setRequested] = useState(false);
-  const [zonesOn, setZonesOn] = useState(true);
-  const id = a.cmcListing.status === "ok" ? a.cmcListing.cmcId : (a.registry?.cmcId ?? null);
-  const q = useQuery({ queryKey: ["ohlcv", id, interval], queryFn: () => getJson<OhlcvResp>(`/api/ohlcv?id=${id}&interval=${interval}&count=200`), enabled: requested && id !== null, staleTime: 5 * 60_000 });
-  return (
-    <Panel title="Technical structure" badge={q.data?.status === "ok" ? <CapabilityBadge status="live-verified" /> : undefined}>
-      {id === null ? (
-        <p className="text-[12.5px] text-muted">No CMC listing resolved for this exact contract, so no verified candle source exists. No chart is drawn.</p>
-      ) : !requested ? (
-        <div className="flex flex-wrap items-center gap-3 text-[12.5px]">
-          <p className="text-muted">Candles load only on request (CMC v5 OHLCV, ≈1 credit per 100 candles).</p>
-          <button type="button" onClick={() => setRequested(true)} className="rounded-lg border border-line px-3 py-1.5">Load 200 candles</button>
-        </div>
-      ) : q.isLoading ? (
-        <p className="text-[12.5px] text-muted">Loading candles…</p>
-      ) : q.data?.status === "unavailable" ? (
-        <div className="text-[12.5px]">
-          <p className="text-muted">Chart unavailable: {q.data.reason} <span className="font-mono text-[10.5px] text-faint">[{q.data.code}]</span></p>
-          <p className="mt-1 text-[11.5px] text-faint">The indicator and support/resistance engine is fixture-tested and ready; it will not run on invented candles.</p>
-        </div>
-      ) : q.data?.status === "ok" ? (
-        <div>
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-[12px]">
-            {(["1h", "4h", "1d", "1w"] as const).map((iv) => (
-              <button key={iv} type="button" onClick={() => setInterval(iv)} aria-pressed={interval === iv} className={`rounded-md border px-2 py-1 ${interval === iv ? "border-ice text-ice" : "border-line text-muted"}`}>{iv}</button>
-            ))}
-            <label className="ml-3 flex items-center gap-1.5 text-muted"><input type="checkbox" checked={zonesOn} onChange={(e) => setZonesOn(e.target.checked)} /> S/R zones</label>
-            <span className="ml-auto"><ProvenanceChip p={q.data.provenance} /></span>
-          </div>
-          <PriceChart candles={q.data.candles} ema50={q.data.indicators.ema50} zones={q.data.zones.status === "ok" ? q.data.zones.zones : []} showZones={zonesOn} />
-          <p className="mt-2 text-[11px] text-faint">{q.data.zones.status === "ok" ? q.data.zones.method : `Zones: ${q.data.zones.reason}`}</p>
-        </div>
-      ) : (
-        <p className="text-[12.5px] text-danger">{(q.error as Error)?.message}</p>
       )}
     </Panel>
   );

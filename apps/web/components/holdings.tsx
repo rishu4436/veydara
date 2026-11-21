@@ -1,5 +1,6 @@
 "use client";
 
+import { CapitalConstellation } from "./constellation";
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -38,6 +39,7 @@ export function Holdings({ wallet }: { wallet: NonNullable<ActiveWallet> }) {
       {d.walletKind === "has-assets" && (
         <>
           <ExposureBar holdings={d.holdings} />
+          <CapitalConstellation d={d} chain={wallet.chain} address={wallet.address} />
           <div className="grid gap-3 lg:grid-cols-2">
             {d.holdings.map((h, i) => (
               <HoldingCard key={h.address} h={h} i={i} />

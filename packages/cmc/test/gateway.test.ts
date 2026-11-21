@@ -7,6 +7,23 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 describe("CmcGateway", () => {
+  it("on 402/1004 (expired plan) suspends pro mode and falls back to keyless for keyless endpoints only", async () => {
+    const f = vi.fn(async (u: URL | RequestInfo) =>
+      String(u).includes("/public-api/") ? jsonResponse(fixture("crypto-quotes-latest-v3.live.json")) : jsonResponse(fixture("error-plan-expired.live.json"), 402),
+    );
+    const g = new CmcGateway({ apiKey: "test-key", fetchImpl: f as unknown as typeof fetch });
+    const q = await g.request("cryptoQuotesLatestV3", { id: "1027" }, { feature: "test" });
+    expect(q.ok).toBe(true);
+    if (q.ok) expect(q.provenance.source).toBe("cmc-keyless");
+    expect(f).toHaveBeenCalledTimes(2);
+    expect(g.proStatus.usable).toBe(false);
+    const rwa = await g.request("rwaQuotesLatest", { rwa_id: "2" }, { feature: "test" });
+    expect(rwa.ok).toBe(false);
+    if (!rwa.ok) expect(rwa.error.code).toBe("CMC_PLAN_EXPIRED");
+    expect(f).toHaveBeenCalledTimes(2); // no further upstream call while suspended
+    expect(g.modeFor("dexKlineCandles")).toBe("keyless");
+  });
+
   it("returns CMC_KEY_MISSING for key-only endpoints without any network call", async () => {
     const f = vi.fn();
     const g = new CmcGateway({ fetchImpl: f as unknown as typeof fetch });

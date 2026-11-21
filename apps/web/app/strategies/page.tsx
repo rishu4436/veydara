@@ -1,12 +1,24 @@
+"use client";
+
+import { Suspense } from "react";
 import { PageHeader } from "@/components/page-header";
-import { PillarStatus, Roadmap } from "@/components/pillar-status";
+import { AddressBar, ArenaView, useAaveAddress } from "@/components/aave-views";
+
+function Inner() {
+  const [addr, setAddr] = useAaveAddress();
+  return (
+    <>
+      <AddressBar value={addr} onChange={setAddr} note="Solvers use your existing Aave V4 collateral plus eligible tokenized equities in the wallet (what-if supply), at block-pinned balances." />
+      {addr ? <ArenaView address={addr} showFutures={false} /> : <p className="card p-5 text-[13px] text-muted">Enter a Base address to run the arena.</p>}
+    </>
+  );
+}
 
 export default function Page() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <PageHeader eyebrow="Execute · Strategies" title="Intents, solvers and guarded execution." sub="No route is executable in this release. Capital intents, the three solvers and the independent verifier land in Phase 3; a single Aave V4 deposit/borrow/repay vertical slice follows in Phase 4 on a clearly labeled Base fork. Mainnet broadcast requires explicit owner approval." />
-      <PillarStatus pillar="execute" />
-      <Roadmap items={[{ phase: "Phase 3", text: "Capital Intent Engine with typed, bounded constraints" },{ phase: "Phase 3", text: "Solver Arena (cost, risk, flexibility) + deterministic verifier with rejection reasons" },{ phase: "Phase 4", text: "Aave V4 Equities Hub fork execution with genuine fork receipts" },]} />
+      <PageHeader eyebrow="Execute · Solver Arena" title="Competing plans, one independent verifier." sub="Four solvers propose USDC borrow plans against your collateral on the Aave V4 Equities Hub. A separate verifier recomputes health with exact rational arithmetic and checks caps, liquidity, reserve state, wallet balances and VEYDARA's HF ≥ 1.25 policy. Nothing is executed." />
+      <Suspense><Inner /></Suspense>
     </div>
   );
 }

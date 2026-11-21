@@ -1,5 +1,6 @@
 export type VeydaraErrorCode =
   | "CMC_KEY_MISSING"
+  | "CMC_PLAN_EXPIRED"
   | "CMC_PLAN_FORBIDDEN"
   | "CMC_RATE_LIMITED"
   | "CMC_CREDITS_EXHAUSTED"

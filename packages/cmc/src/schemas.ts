@@ -233,3 +233,19 @@ export const DexPoolSchema = z.looseObject({
   top: z.boolean().optional(),
 });
 export const DexTokenPoolsSchema = z.looseObject({ data: z.array(DexPoolSchema), status: StatusSchema });
+
+/* ---------- DEX K-line candles (/v1/k-line/candles) — keyless verified 2026-11-21 ----------
+ * Docs say [o,h,l,c,volume,timestamp(seconds),traders]; live responses on
+ * 2026-11-21 returned the timestamp in MILLISECONDS and numbers with >15
+ * significant digits. Both are handled in @veydara/quant fromCmcKlineRows. */
+export const KlineRowSchema = z.array(z.union([z.number(), z.string(), z.null()])).min(6);
+export const KlineCandlesSchema = z.looseObject({ data: z.array(KlineRowSchema), status: StatusSchema });
+
+/* ---------- /v1/key/info (0 credits) ---------- */
+export const KeyInfoSchema = z.looseObject({
+  data: z.looseObject({
+    plan: z.looseObject({ credit_limit_monthly: nullableNum, credit_limit_monthly_reset_timestamp: z.string().nullable().optional(), rate_limit_minute: nullableNum }),
+    usage: z.looseObject({ current_month: z.looseObject({ credits_used: nullableNum, credits_left: nullableNum }).optional() }).optional(),
+  }),
+  status: StatusSchema,
+});

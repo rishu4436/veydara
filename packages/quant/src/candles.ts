@@ -38,3 +38,20 @@ export function fromCmcV5Rows(rows: (number | string | null)[][], nowMs = Date.n
     return [{ openTime: Date.parse(String(ot)), closeTime, open: o, high: h, low: l, close: cl, volume: typeof v === "number" ? v : null, closed: closeTime <= nowMs }];
   });
 }
+
+export const INTERVAL_MS: Record<string, number> = { "15min": 900_000, "1h": 3_600_000, "4h": 14_400_000, "1d": 86_400_000, "1w": 604_800_000 };
+
+/**
+ * Map CMC DEX K-line rows ([open, high, low, close, volume, timestamp, traders]).
+ * Timestamp unit is detected (docs: seconds; observed live 2026-11-21: ms).
+ * A candle is closed only when openTime + interval <= now (no look-ahead).
+ */
+export function fromCmcKlineRows(rows: (number | string | null)[][], intervalMs: number, nowMs = Date.now()): Candle[] {
+  return rows.flatMap((r) => {
+    const [o, h, l, c, v, ts] = r.map((x) => (x === null || x === undefined ? NaN : Number(x)));
+    if (![o, h, l, c, ts].every((x) => Number.isFinite(x))) return [];
+    const openTime = ts! < 1e12 ? ts! * 1000 : ts!;
+    const closeTime = openTime + intervalMs;
+    return [{ openTime, closeTime, open: o!, high: h!, low: l!, close: c!, volume: Number.isFinite(v) ? v! : null, closed: closeTime <= nowMs }];
+  });
+}

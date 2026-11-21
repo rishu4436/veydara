@@ -1,0 +1,600 @@
+{
+ "_fixture": {
+  "kind": "live-recording",
+  "recordedAt": "2026-11-21T08:43:13.138Z",
+  "chainId": 8453,
+  "abiSource": {
+   "repo": "https://github.com/aave/aave-v4",
+   "commit": "4885a7ad44391eb6635954ea3b353fa7f12222f5",
+   "committedAt": "2026-11-14T05:32:47Z",
+   "files": [
+    "src/spoke/interfaces/ISpoke.sol",
+    "src/hub/interfaces/IHub.sol",
+    "src/hub/interfaces/IHubBase.sol",
+    "src/spoke/interfaces/IAaveOracle.sol",
+    "src/spoke/interfaces/IPriceOracle.sol"
+   ],
+   "retrievedAt": "2026-11-21"
+  },
+  "note": "LIVE read-only snapshot from Base mainnet via public RPC. Point-in-time; not refreshed. Addresses are public on-chain borrowers found in Borrow events."
+ },
+ "positions": [
+  {
+   "user": "0xB6c0C00b3FdcAD0c3994257a7c668b8fEeeF467E",
+   "blockNumber": "60301086",
+   "reserves": [
+    {
+     "reserveId": 0,
+     "symbol": "AAPLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 1,
+     "symbol": "AMZNc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 2,
+     "symbol": "GOOGLc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 3,
+     "symbol": "METAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 4,
+     "symbol": "MSFTc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 5,
+     "symbol": "NVDAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "8798478342",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 6,
+     "symbol": "TSLAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 7,
+     "symbol": "USDC",
+     "collateralEnabled": false,
+     "borrowing": true,
+     "supplied": "0",
+     "debt": "7783940132",
+     "debtRay": "7783940131966614275343949079218982206"
+    },
+    {
+     "reserveId": 8,
+     "symbol": "SPCXc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    }
+   ],
+   "account": {
+    "riskPremiumBps": "0",
+    "avgCollateralFactorWad": "700000000000000000",
+    "healthFactorWad": "1027376679841561512",
+    "totalCollateralValue": "1142260694045964236280000000000",
+    "totalDebtValueRay": "778275876337278570229538012806722914107059538000000000000",
+    "activeCollateralCount": "1",
+    "borrowCount": "1"
+   },
+   "provenance": {
+    "source": "aave-v4-spoke",
+    "endpointOrContract": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+    "chainId": 8453,
+    "blockNumber": "60301086",
+    "observedAt": null,
+    "fetchedAt": "2026-11-21T08:43:13.175Z",
+    "currency": "USD",
+    "freshness": "live",
+    "coverage": "complete",
+    "isSimulated": false,
+    "assetId": "0xB6c0C00b3FdcAD0c3994257a7c668b8fEeeF467E"
+   }
+  },
+  {
+   "user": "0x03BD789D919e47D7759E9Cbb5f8A565bc293FcD3",
+   "blockNumber": "60301086",
+   "reserves": [
+    {
+     "reserveId": 0,
+     "symbol": "AAPLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 1,
+     "symbol": "AMZNc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 2,
+     "symbol": "GOOGLc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "93566593",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 3,
+     "symbol": "METAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 4,
+     "symbol": "MSFTc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "29654353",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 5,
+     "symbol": "NVDAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "122321161",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 6,
+     "symbol": "TSLAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 7,
+     "symbol": "USDC",
+     "collateralEnabled": false,
+     "borrowing": true,
+     "supplied": "0",
+     "debt": "300002714",
+     "debtRay": "300002713764624176541959445267163124"
+    },
+    {
+     "reserveId": 8,
+     "symbol": "SPCXc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    }
+   ],
+   "account": {
+    "riskPremiumBps": "0",
+    "avgCollateralFactorWad": "750694362883865368",
+    "healthFactorWad": "1392075542829883511",
+    "totalCollateralValue": "55623577063417161450000000000",
+    "totalDebtValueRay": "29995718235275611953068567208215492665267052000000000000",
+    "activeCollateralCount": "3",
+    "borrowCount": "1"
+   },
+   "provenance": {
+    "source": "aave-v4-spoke",
+    "endpointOrContract": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+    "chainId": 8453,
+    "blockNumber": "60301086",
+    "observedAt": null,
+    "fetchedAt": "2026-11-21T08:43:13.192Z",
+    "currency": "USD",
+    "freshness": "live",
+    "coverage": "complete",
+    "isSimulated": false,
+    "assetId": "0x03BD789D919e47D7759E9Cbb5f8A565bc293FcD3"
+   }
+  },
+  {
+   "user": "0x3CE41647B6B9D19E57F2aC8F149245228171d6A6",
+   "blockNumber": "60301086",
+   "reserves": [
+    {
+     "reserveId": 0,
+     "symbol": "AAPLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 1,
+     "symbol": "AMZNc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 2,
+     "symbol": "GOOGLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 3,
+     "symbol": "METAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 4,
+     "symbol": "MSFTc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 5,
+     "symbol": "NVDAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "769624",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 6,
+     "symbol": "TSLAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 7,
+     "symbol": "USDC",
+     "collateralEnabled": false,
+     "borrowing": true,
+     "supplied": "0",
+     "debt": "500004",
+     "debtRay": "500003421546291141167977334232146"
+    },
+    {
+     "reserveId": 8,
+     "symbol": "SPCXc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    }
+   ],
+   "account": {
+    "riskPremiumBps": "0",
+    "avgCollateralFactorWad": "700000000000000000",
+    "healthFactorWad": "1399030708563184663",
+    "totalCollateralValue": "99916282136872160000000000",
+    "totalDebtValueRay": "49992753602700306056148227031212958720158000000000000",
+    "activeCollateralCount": "1",
+    "borrowCount": "1"
+   },
+   "provenance": {
+    "source": "aave-v4-spoke",
+    "endpointOrContract": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+    "chainId": 8453,
+    "blockNumber": "60301086",
+    "observedAt": null,
+    "fetchedAt": "2026-11-21T08:43:13.236Z",
+    "currency": "USD",
+    "freshness": "live",
+    "coverage": "complete",
+    "isSimulated": false,
+    "assetId": "0x3CE41647B6B9D19E57F2aC8F149245228171d6A6"
+   }
+  },
+  {
+   "user": "0x12a0847d82e97d5AE49F14072d26CcB07d9de9fA",
+   "blockNumber": "60301086",
+   "reserves": [
+    {
+     "reserveId": 0,
+     "symbol": "AAPLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 1,
+     "symbol": "AMZNc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 2,
+     "symbol": "GOOGLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 3,
+     "symbol": "METAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 4,
+     "symbol": "MSFTc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 5,
+     "symbol": "NVDAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "330963561",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 6,
+     "symbol": "TSLAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 7,
+     "symbol": "USDC",
+     "collateralEnabled": false,
+     "borrowing": true,
+     "supplied": "140568672",
+     "debt": "226557185",
+     "debtRay": "226557184790431057212956932628123426"
+    },
+    {
+     "reserveId": 8,
+     "symbol": "SPCXc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    }
+   ],
+   "account": {
+    "riskPremiumBps": "0",
+    "avgCollateralFactorWad": "700000000000000000",
+    "healthFactorWad": "1327773395491772831",
+    "totalCollateralValue": "42967278226640410740000000000",
+    "totalDebtValueRay": "22652280020649541349140372215445845570763598000000000000",
+    "activeCollateralCount": "1",
+    "borrowCount": "1"
+   },
+   "provenance": {
+    "source": "aave-v4-spoke",
+    "endpointOrContract": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+    "chainId": 8453,
+    "blockNumber": "60301086",
+    "observedAt": null,
+    "fetchedAt": "2026-11-21T08:43:13.228Z",
+    "currency": "USD",
+    "freshness": "live",
+    "coverage": "complete",
+    "isSimulated": false,
+    "assetId": "0x12a0847d82e97d5AE49F14072d26CcB07d9de9fA"
+   }
+  },
+  {
+   "user": "0x5771e9CD1F225eBdE88D4815587C38899604AC2a",
+   "blockNumber": "60301086",
+   "reserves": [
+    {
+     "reserveId": 0,
+     "symbol": "AAPLc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 1,
+     "symbol": "AMZNc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 2,
+     "symbol": "GOOGLc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "71465363808",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 3,
+     "symbol": "METAc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 4,
+     "symbol": "MSFTc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 5,
+     "symbol": "NVDAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 6,
+     "symbol": "TSLAc",
+     "collateralEnabled": true,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    },
+    {
+     "reserveId": 7,
+     "symbol": "USDC",
+     "collateralEnabled": false,
+     "borrowing": true,
+     "supplied": "0",
+     "debt": "22052796229",
+     "debtRay": "22052796228134445737052874449393000996"
+    },
+    {
+     "reserveId": 8,
+     "symbol": "SPCXc",
+     "collateralEnabled": false,
+     "borrowing": false,
+     "supplied": "0",
+     "debt": "0",
+     "debtRay": "0"
+    }
+   ],
+   "account": {
+    "riskPremiumBps": "0",
+    "avgCollateralFactorWad": "760000000000000000",
+    "healthFactorWad": "6643816729525472744",
+    "totalCollateralValue": "19275328943649375197760000000000",
+    "totalDebtValueRay": "2204944927525090177222336193463781662023883708000000000000",
+    "activeCollateralCount": "1",
+    "borrowCount": "1"
+   },
+   "provenance": {
+    "source": "aave-v4-spoke",
+    "endpointOrContract": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+    "chainId": 8453,
+    "blockNumber": "60301086",
+    "observedAt": null,
+    "fetchedAt": "2026-11-21T08:43:13.237Z",
+    "currency": "USD",
+    "freshness": "live",
+    "coverage": "complete",
+    "isSimulated": false,
+    "assetId": "0x5771e9CD1F225eBdE88D4815587C38899604AC2a"
+   }
+  }
+ ],
+ "hfCrossCheck": [
+  {
+   "user": "0xB6c0C00b3FdcAD0c3994257a7c668b8fEeeF467E",
+   "contractHfWad": "1027376679841561512",
+   "veydaraHfWad": "1027376679841561512",
+   "relErr": 0
+  },
+  {
+   "user": "0x03BD789D919e47D7759E9Cbb5f8A565bc293FcD3",
+   "contractHfWad": "1392075542829883511",
+   "veydaraHfWad": "1392075542829883511",
+   "relErr": 0
+  },
+  {
+   "user": "0x3CE41647B6B9D19E57F2aC8F149245228171d6A6",
+   "contractHfWad": "1399030708563184663",
+   "veydaraHfWad": "1399030708563184663",
+   "relErr": 0
+  },
+  {
+   "user": "0x12a0847d82e97d5AE49F14072d26CcB07d9de9fA",
+   "contractHfWad": "1327773395491772831",
+   "veydaraHfWad": "1327773395491772831",
+   "relErr": 0
+  },
+  {
+   "user": "0x5771e9CD1F225eBdE88D4815587C38899604AC2a",
+   "contractHfWad": "6643816729525472744",
+   "veydaraHfWad": "6643816729525472744",
+   "relErr": 0
+  }
+ ]
+}

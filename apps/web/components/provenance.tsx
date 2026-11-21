@@ -12,6 +12,8 @@ const SRC: Record<Provenance["source"], string> = {
   "solana-rpc": "Solana RPC",
   "chainlink-feed": "Chainlink feed (Aave oracle)",
   "aave-address-book": "Aave address book",
+  "aave-v4-spoke": "Aave V4 Spoke (on-chain)",
+  "veydara-model": "VEYDARA deterministic model",
   fixture: "FIXTURE",
   "user-input": "User input",
 };

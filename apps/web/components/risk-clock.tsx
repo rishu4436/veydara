@@ -6,7 +6,7 @@ import type { SessionState } from "@veydara/domain";
  * RWA Risk Clock (Phase 1 slice): underlying-market session + protocol oracle age.
  * Gap-stress and loan headroom arrive with the borrowing engine (Phase 3).
  */
-export function RiskClock({ session, oracleUpdatedAt, oracleAgeSec }: { session: SessionState; oracleUpdatedAt: string | null; oracleAgeSec: number | null }) {
+export function RiskClock({ session, oracleUpdatedAt, oracleAgeSec, gap }: { session: SessionState; oracleUpdatedAt: string | null; oracleAgeSec: number | null; gap?: { label: string; hf: string; tone: string }[] }) {
   const now = Date.now();
   const nextOpen = session.nextOpen ? Date.parse(session.nextOpen) : null;
   const nextClose = session.nextClose ? Date.parse(session.nextClose) : null;
@@ -50,6 +50,16 @@ export function RiskClock({ session, oracleUpdatedAt, oracleAgeSec }: { session:
           <dt className="text-faint">Oracle age</dt>
           <dd className="num">{oracleAgeSec !== null ? hrs(oracleAgeSec * 1000) : "—"}</dd>
         </div>
+        {gap && gap.length > 0 && (
+          <div className="col-span-2 rounded-lg border border-line-soft p-2">
+            <dt className="text-faint">{open ? "If the next close-to-open gap is…" : "When the market reopens, if it gaps…"}</dt>
+            <dd className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+              {gap.map((g) => (
+                <span key={g.label} className="num">{g.label}: <b className={g.tone}>HF {g.hf}</b></span>
+              ))}
+            </dd>
+          </div>
+        )}
         <p className="col-span-2 text-[11px] leading-4 text-faint">
           The token trades on-chain 24/7 while the underlying market follows NYSE hours. A large oracle age while the market is closed can be expected behaviour for a 24/5 feed; the feed&apos;s published schedule is not yet verified in VEYDARA, so the raw age is shown without a malfunction verdict. Calendar: NYSE 2026.
         </p>

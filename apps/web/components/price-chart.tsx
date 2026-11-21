@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { CandlestickSeries, ColorType, LineSeries, createChart, type IChartApi, type UTCTimestamp } from "lightweight-charts";
 import type { Candle, Zone } from "@veydara/quant";
 
-export function PriceChart({ candles, ema50, zones, showZones }: { candles: Candle[]; ema50: (number | null)[]; zones: Zone[]; showZones: boolean }) {
+export function PriceChart({ candles, ema20 = [], ema50, zones, showZones }: { candles: Candle[]; ema20?: (number | null)[]; ema50: (number | null)[]; zones: Zone[]; showZones: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
 
@@ -23,8 +23,13 @@ export function PriceChart({ candles, ema50, zones, showZones }: { candles: Cand
     chartRef.current = chart;
     const series = chart.addSeries(CandlestickSeries, { upColor: c("--color-mint"), downColor: c("--color-danger"), wickUpColor: c("--color-mint"), wickDownColor: c("--color-danger"), borderVisible: false });
     series.setData(candles.map((k) => ({ time: Math.floor(k.openTime / 1000) as UTCTimestamp, open: k.open, high: k.high, low: k.low, close: k.close })));
-    const line = chart.addSeries(LineSeries, { color: c("--color-ice"), lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
-    line.setData(candles.flatMap((k, i) => (ema50[i] != null ? [{ time: Math.floor(k.openTime / 1000) as UTCTimestamp, value: ema50[i]! }] : [])));
+    const addLine = (vals: (number | null)[], color: string) => {
+      if (!vals.length) return;
+      const line = chart.addSeries(LineSeries, { color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+      line.setData(candles.flatMap((k, i) => (vals[i] != null ? [{ time: Math.floor(k.openTime / 1000) as UTCTimestamp, value: vals[i]! }] : [])));
+    };
+    addLine(ema20, c("--color-violet"));
+    addLine(ema50, c("--color-ice"));
     if (showZones) {
       for (const z of zones) {
         const color = z.kind === "support" ? c("--color-mint") : c("--color-amber");
@@ -37,7 +42,7 @@ export function PriceChart({ candles, ema50, zones, showZones }: { candles: Cand
       chart.remove();
       chartRef.current = null;
     };
-  }, [candles, ema50, zones, showZones]);
+  }, [candles, ema20, ema50, zones, showZones]);
 
   return <div ref={ref} className="h-[360px] w-full" role="img" aria-label="Candlestick chart; see data table below for values" />;
 }

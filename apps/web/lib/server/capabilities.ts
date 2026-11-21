@@ -25,6 +25,15 @@ export async function resolveCapabilities(): Promise<Capability[]> {
   ]);
   const g = cmc();
   const now = new Date().toISOString();
+  // With a key: one 0-credit plan probe (/v1/key/info) and one 0-credit access probe (/v5/real-world-assets/map, documented as free).
+  // Both are cached by the gateway; a 402/1004 here suspends pro mode and switches keyless endpoints to the public API.
+  let plan: { limit?: number | null; rpm?: number | null; used?: number | null; notice?: string | null } | null = null;
+  if (g.hasKey) {
+    const ki = await g.request("keyInfo", {}, { feature: "capabilities.plan" });
+    if (ki.ok) plan = { limit: ki.data.data.plan.credit_limit_monthly, rpm: ki.data.data.plan.rate_limit_minute, used: ki.data.data.usage?.current_month?.credits_used, notice: (ki.data.status as { notice?: string | null }).notice ?? null };
+    await g.request("rwaMap", {}, { feature: "capabilities.access-probe" });
+  }
+  const ps = g.proStatus;
   const ledger = g.ledger.list(2000);
   const lastOk = (path: string) => ledger.find((e) => e.endpoint === path && e.outcome === "miss" && !e.errorCode);
   const lastErr = (path: string) => ledger.find((e) => e.endpoint === path && e.errorCode);
@@ -35,7 +44,7 @@ export async function resolveCapabilities(): Promise<Capability[]> {
     const err = lastErr(path);
     let status: CapabilityStatus = "unavailable";
     let reason = "";
-    if (!mode) reason = "CMC_API_KEY not configured and this endpoint has no keyless access.";
+    if (!mode) reason = g.hasKey ? `CMC rejected the configured key: HTTP ${ps.httpStatus ?? "?"} / error ${ps.cmcErrorCode ?? "?"} — ${ps.suspendedReason}` : "CMC_API_KEY not configured and this endpoint has no keyless access.";
     else if (ok) {
       status = "live-verified";
       reason = `Live ${mode} response at ${ok.at} (credit_count=${ok.actualCredits ?? "n/a"}).`;
@@ -43,10 +52,15 @@ export async function resolveCapabilities(): Promise<Capability[]> {
       status = "read-only";
       reason = err ? `Configured (${mode}); last attempt failed: ${err.errorCode}.` : `Configured (${mode}); not yet exercised in this server session.`;
     }
-    return { id, label, pillar, status, reason, unlock: mode ? undefined : "Set CMC_API_KEY (hackathon Startup plan) in the server environment.", checkedAt: now };
+    if (mode === "keyless" && g.hasKey && !ps.usable) reason = `Pro plan rejected (${ps.httpStatus}/${ps.cmcErrorCode}); serving via keyless public API. ` + reason;
+    return { id, label, pillar, status, reason, unlock: mode ? undefined : g.hasKey ? "Renew/activate the CMC API subscription for this key (CMC returns 402 'subscription plan has expired')." : "Set CMC_API_KEY in the server environment.", checkedAt: now };
   };
 
+  const planCap: Capability = g.hasKey
+    ? { id: "cmc.plan", label: "CMC API key / plan", pillar: "discover", status: ps.usable ? "live-verified" : "unavailable", evidence: plan ? `monthly credit limit ${plan.limit ?? "?"}, ${plan.rpm ?? "?"} req/min, ${plan.used ?? 0} used this month` : undefined, reason: ps.usable ? "Key accepted by CMC." : `Key present but CMC rejects data calls: HTTP ${ps.httpStatus} / error ${ps.cmcErrorCode} — "${ps.suspendedReason}". ${plan?.notice ?? ""}`.trim(), unlock: ps.usable ? undefined : "Renew or activate the subscription for this CMC key.", checkedAt: now }
+    : { id: "cmc.plan", label: "CMC API key / plan", pillar: "discover", status: "unavailable", reason: "No CMC_API_KEY configured; keyless public API only.", checkedAt: now };
   const caps: Capability[] = [
+    planCap,
     { id: "wallet.evm", label: "EVM wallet connect (Base)", pillar: "discover", status: "read-only", reason: "Injected-wallet connect via wagmi; VEYDARA reads addresses only and requests no signatures.", checkedAt: now },
     { id: "wallet.solana", label: "Solana wallet connect", pillar: "discover", status: "read-only", reason: "Wallet Standard adapter; read-only.", checkedAt: now },
     { id: "wallet.watch", label: "Watch-only addresses", pillar: "discover", status: "read-only", reason: "Paste any Base or Solana address; nothing is signed.", checkedAt: now },
@@ -57,11 +71,19 @@ export async function resolveCapabilities(): Promise<Capability[]> {
     cmcCap("cmc.dex", "CMC DEX token liquidity", "discover", "dexToken", "/v1/dex/token"),
     cmcCap("cmc.rwa.quotes", "CMC RWA quotes (aggregate vs issuer tokens)", "discover", "rwaQuotesLatest", "/v5/real-world-assets/quotes/latest"),
     cmcCap("cmc.rwa.map", "CMC RWA map / issuers", "discover", "rwaMap", "/v5/real-world-assets/map"),
-    cmcCap("cmc.ohlcv", "CMC OHLCV candles (v5)", "alpha", "cryptoOhlcvHistoricalV5", "/v5/cryptocurrency/ohlcv/historical"),
-    { id: "cmc.rwa.marketpairs", label: "CMC RWA market pairs", pillar: "discover", status: "unavailable", reason: "Growth+ plan only; intentionally not called on Startup (no repeated 403s).", checkedAt: now },
-    { id: "cmc.ai", label: "CMC AI endpoints", pillar: "alpha", status: "unavailable", reason: "Documented as Enterprise-only (Phase 1); feature-gated off. VEYDARA explanations come from its own deterministic pipeline.", checkedAt: now },
-    { id: "alpha.indicators", label: "Indicator + S/R zone engine", pillar: "alpha", status: g.modeFor("cryptoOhlcvHistoricalV5") ? "read-only" : "unavailable", reason: g.modeFor("cryptoOhlcvHistoricalV5") ? "Engine is fixture-tested; runs on CMC v5 candles when requested." : "Engine is fixture-tested, but no verified candle source is configured (CMC v5 OHLCV needs CMC_API_KEY).", checkedAt: now },
+    cmcCap("cmc.ohlcv", "CMC OHLCV candles (v5, CEX-aggregated)", "alpha", "cryptoOhlcvHistoricalV5", "/v5/cryptocurrency/ohlcv/historical"),
+    cmcCap("cmc.kline", "CMC DEX K-line candles (exact token contract)", "alpha", "dexKlineCandles", "/v1/k-line/candles"),
+    { id: "cmc.rwa.marketpairs", label: "CMC RWA market pairs", pillar: "discover", status: "unavailable", reason: g.hasKey && !ps.usable ? "Probed 2026-11-21: HTTP 402 / 1004 (subscription expired). Documented Growth+ only; not called again." : "Growth+ plan only; not called (no repeated 403s).", checkedAt: now },
+    { id: "cmc.ai", label: "CMC AI (/v5/cmc-ai/*)", pillar: "alpha", status: "unavailable", reason: g.hasKey && !ps.usable ? "Probed 2026-11-21: HTTP 402 / 1004 (subscription expired). Docs list Basic+ with a separate AI credit allowance; VEYDARA explanations come from its own deterministic pipeline." : "Key required; VEYDARA explanations come from its own deterministic pipeline.", checkedAt: now },
+    (() => {
+      const k = lastOk("/v1/k-line/candles");
+      return { id: "alpha.indicators", label: "Indicators, S/R zones, multi-horizon research", pillar: "alpha" as const, status: (k ? "live-verified" : g.modeFor("dexKlineCandles") ? "read-only" : "unavailable") as CapabilityStatus, reason: k ? `Computed on real CMC DEX candles (last fetch ${k.at}).` : "Engine is fixture-tested; runs on CMC DEX K-line candles (keyless) when a chart or research view is opened.", checkedAt: now };
+    })(),
     { id: "aave.oracle", label: "Aave V4 Base equity oracle reads", pillar: "guardian", status: baseProbe.ok ? "live-verified" : "unavailable", reason: "Chainlink feeds from the official Aave address book, read live via Base RPC.", checkedAt: now },
+    { id: "aave.reserves", label: "Aave V4 reserves (caps, CF, rates, liquidity)", pillar: "execute", status: baseProbe.ok ? "live-verified" : "unavailable", reason: "Block-pinned Spoke/Hub view calls; ABIs pinned to aave/aave-v4@4885a7ad.", checkedAt: now },
+    { id: "aave.positions", label: "Aave V4 user positions + health factor", pillar: "guardian", status: baseProbe.ok ? "live-verified" : "unavailable", reason: "getUserAccountData + per-reserve reads; VEYDARA bigint HF matches the Spoke exactly on recorded live borrowers (tests).", checkedAt: now },
+    { id: "strategy.futures", label: "Parallel Futures (scenario grid)", pillar: "execute", status: "simulation", reason: "Deterministic shocks on live Aave state; labeled simulation.", checkedAt: now },
+    { id: "strategy.solver", label: "Solver Arena + independent verifier", pillar: "execute", status: "simulation", reason: "Candidate borrow plans checked by an independent rational-arithmetic verifier (caps, liquidity, policy HF). No transactions.", checkedAt: now },
   ];
   for (const a of ADAPTERS) {
     for (const [cap, v] of Object.entries(a.capabilities)) {

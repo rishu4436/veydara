@@ -170,6 +170,30 @@ export const ENDPOINTS = {
     estimateCredits: () => 1,
     docsUrl: KEYLESS_DOCS,
   }),
+  dexKlineCandles: def({
+    id: "dexKlineCandles",
+    path: "/v1/k-line/candles",
+    keyless: true,
+    minPlan: "basic",
+    dataClass: "recent-candles",
+    ttlMs: 5 * MIN,
+    staleMs: 6 * HOUR,
+    schema: S.KlineCandlesSchema,
+    estimateCredits: (p) => Math.max(1, Math.ceil(Number(p.limit ?? 100) / 100)), // observed 2026-11-21: limit≤100 → 1 credit, 200 → 2
+    docsUrl: KEYLESS_DOCS,
+  }),
+  keyInfo: def({
+    id: "keyInfo",
+    path: "/v1/key/info",
+    keyless: false,
+    minPlan: "basic",
+    dataClass: "id-map",
+    ttlMs: 10 * MIN,
+    staleMs: HOUR,
+    schema: S.KeyInfoSchema,
+    estimateCredits: () => 0, // "This endpoint does not use credits"
+    docsUrl: "https://coinmarketcap.com/api/documentation/pro-api-reference/key",
+  }),
 } as const;
 
 export type EndpointId = keyof typeof ENDPOINTS;

@@ -6,5 +6,6 @@ export const dynamic = "force-dynamic";
 /** API Evidence inspector: credit ledger with expected vs actual credit_count. No secrets included. */
 export async function GET() {
   const g = cmc();
-  return json({ mode: g.hasKey ? "pro" : "keyless-or-unavailable", summary: g.ledger.summary(), entries: g.ledger.list(200) });
+  const ps = g.proStatus;
+  return json({ mode: ps.usable ? "pro" : g.hasKey ? "keyless (pro key rejected by CMC)" : "keyless-or-unavailable", pro: { keyConfigured: g.hasKey, usable: ps.usable, httpStatus: ps.httpStatus, cmcErrorCode: ps.cmcErrorCode, reason: ps.suspendedReason }, summary: g.ledger.summary(), entries: g.ledger.list(200) });
 }

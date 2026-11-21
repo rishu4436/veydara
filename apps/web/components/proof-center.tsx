@@ -6,6 +6,35 @@ import { getJson, type CapabilitiesResponse } from "@/lib/client/api";
 import { CapabilityBadge } from "./badge";
 
 type LedgerResp = { mode: string; summary: LedgerSummary; entries: LedgerEntry[] };
+type Probe = { _fixture?: { recordedAt: string }; keyInfo?: { plan: { credit_limit_monthly: number; rate_limit_minute: number } | null; notice: string | null }; probes?: { name: string; path: string; http: number; error_code: string | number | null; error_message: string | null; credit_count: number | null; accessible: boolean }[] };
+
+function ProbeTable() {
+  const q = useQuery({ queryKey: ["cmc-probe"], queryFn: () => getJson<Probe>("/api/cmc-probe"), staleTime: 3_600_000 });
+  const d = q.data;
+  if (!d?.probes) return null;
+  return (
+    <section className="card overflow-x-auto">
+      <div className="border-b border-line px-5 py-3">
+        <p className="eyebrow">CMC key access probe — recorded {d._fixture?.recordedAt ? new Date(d._fixture.recordedAt).toLocaleString() : ""}</p>
+        <p className="mt-1 text-[11.5px] text-faint">
+          /v1/key/info: monthly credit limit {d.keyInfo?.plan?.credit_limit_monthly ?? "?"}, {d.keyInfo?.plan?.rate_limit_minute ?? "?"} req/min. {d.keyInfo?.notice ? `CMC notice: “${d.keyInfo.notice}”` : ""}
+        </p>
+      </div>
+      <table className="w-full min-w-[640px] text-left text-[12px]">
+        <thead className="text-[10.5px] uppercase tracking-wider text-faint"><tr>{["Endpoint", "HTTP", "CMC code", "Message", "Credits", "Access"].map((h) => <th key={h} className="px-4 py-2 font-medium">{h}</th>)}</tr></thead>
+        <tbody>
+          {d.probes.map((p) => (
+            <tr key={p.name} className="border-t border-line-soft">
+              <td className="px-4 py-1.5 font-mono text-[11px]">{p.path}</td><td className="px-4">{p.http}</td><td className="px-4">{String(p.error_code ?? "")}</td>
+              <td className="px-4 text-muted">{p.error_message ?? ""}</td><td className="px-4">{p.credit_count ?? "—"}</td>
+              <td className="px-4">{p.accessible ? <span className="text-mint">yes</span> : <span className="text-danger">no</span>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
 
 export function ProofCenter() {
   const caps = useQuery({ queryKey: ["capabilities"], queryFn: () => getJson<CapabilitiesResponse>("/api/capabilities"), staleTime: 60_000 });
@@ -28,6 +57,7 @@ export function ProofCenter() {
         ))}
       </section>
 
+      <ProbeTable />
       <section className="card overflow-x-auto">
         <div className="flex items-center justify-between border-b border-line px-5 py-3">
           <p className="eyebrow">CMC API evidence — credit ledger (this server process)</p>

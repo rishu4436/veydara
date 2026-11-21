@@ -69,6 +69,8 @@ export class CmcGateway {
   private failures = 0;
   private circuitOpenUntil = 0;
   private backoffUntil: Record<"pro" | "keyless", number> = { pro: 0, keyless: 0 };
+  /** Set when CMC answers 402 / error 1004 ("subscription plan has expired"): pro mode is suspended for every endpoint. */
+  private proSuspended: { until: number; message: string; httpStatus?: number; cmcErrorCode?: string } | null = null;
   private readonly fetchImpl: typeof fetch;
   private readonly now: () => number;
 
@@ -82,9 +84,17 @@ export class CmcGateway {
     return Boolean(this.opts.apiKey && this.opts.apiKey.trim());
   }
 
+  /** Pro-mode suspension (expired plan), if any. */
+  get proStatus(): { usable: boolean; suspendedReason?: string; httpStatus?: number; cmcErrorCode?: string } {
+    if (!this.hasKey) return { usable: false, suspendedReason: "CMC_API_KEY not configured" };
+    if (this.proSuspended && this.proSuspended.until > this.now()) return { usable: false, suspendedReason: this.proSuspended.message, httpStatus: this.proSuspended.httpStatus, cmcErrorCode: this.proSuspended.cmcErrorCode };
+    return { usable: true };
+  }
+
   /** Which access mode would be used for this endpoint, or null when unavailable. */
   modeFor(endpoint: EndpointId): "pro" | "keyless" | null {
-    if (this.hasKey) return "pro";
+    if (endpoint === "keyInfo") return this.hasKey ? "pro" : null; // 0-credit plan check stays available while data calls are suspended
+    if (this.proStatus.usable) return "pro";
     if (ENDPOINTS[endpoint].keyless && this.opts.allowKeyless !== false) return "keyless";
     return null;
   }
@@ -120,6 +130,10 @@ export class CmcGateway {
     };
 
     if (!mode) {
+      const ps = this.proStatus;
+      if (this.hasKey && !ps.usable) {
+        return fail("CMC_PLAN_EXPIRED", `CMC rejected the configured key (${ps.httpStatus ?? "?"} / ${ps.cmcErrorCode ?? "?"}: ${ps.suspendedReason}); ${def.path} has no keyless access.`, "blocked", { httpStatus: ps.httpStatus, cmcErrorCode: ps.cmcErrorCode });
+      }
       return fail("CMC_KEY_MISSING", `CMC_API_KEY is not configured; ${def.path} requires an API key (no keyless access).`, "blocked");
     }
 
@@ -234,14 +248,22 @@ export class CmcGateway {
     if (!res.ok || (cmcCode && cmcCode !== "0")) {
       const status = res.status;
       let code: VeydaraErrorCode = "CMC_UPSTREAM";
-      if (cmcCode === "1002" || cmcCode === "1001" || status === 401) code = "CMC_KEY_MISSING";
+      if (status === 402 || cmcCode === "1004") code = "CMC_PLAN_EXPIRED";
+      else if (cmcCode === "1002" || cmcCode === "1001" || status === 401) code = "CMC_KEY_MISSING";
       else if (cmcCode === "1022" || cmcCode === "1008" || cmcCode === "1009" || status === 429) code = "CMC_RATE_LIMITED";
       else if (cmcCode === "1010" || cmcCode === "1011" || cmcCode === "1012") code = "CMC_CREDITS_EXHAUSTED";
       else if (status === 403 || cmcCode === "1005" || cmcCode === "1006" || cmcCode === "1007" || cmcCode === "1014") code = "CMC_PLAN_FORBIDDEN";
       else if (status === 400) code = "CMC_BAD_REQUEST";
       record("miss", { httpStatus: status, actual, errorCode: code });
 
-      if (code === "CMC_RATE_LIMITED") {
+      if (code === "CMC_PLAN_EXPIRED" && mode === "pro") {
+        // Suspend pro mode for all endpoints (re-checked after 15 min) and transparently
+        // retry once through the documented keyless API when this endpoint supports it.
+        this.proSuspended = { until: this.now() + 15 * 60_000, message: cmcMsg || `HTTP ${status}`, httpStatus: status, cmcErrorCode: cmcCode };
+        if (def.keyless && this.opts.allowKeyless !== false) {
+          return this.fetchUpstream(endpoint, params, { ...ro, feature: `${ro.feature} (keyless fallback: pro plan expired)` }, "keyless", key, pk, expected, baseProv);
+        }
+      } else if (code === "CMC_RATE_LIMITED") {
         // Exponential-ish backoff; keyless pool is shared by IP so back off longer.
         this.backoffUntil[mode] = this.now() + (mode === "keyless" ? 60_000 : 20_000);
       } else if (code === "CMC_PLAN_FORBIDDEN" || code === "CMC_KEY_MISSING") {

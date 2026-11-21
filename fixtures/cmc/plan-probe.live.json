@@ -1,0 +1,181 @@
+{
+ "_fixture": {
+  "kind": "live-probe",
+  "note": "Recorded live from CMC Pro API with the project key (key not stored).",
+  "recordedAt": "2026-11-21T08:36:59.783Z"
+ },
+ "keyInfo": {
+  "plan": {
+   "credit_limit_monthly": 450000,
+   "credit_limit_monthly_reset": "In 9 days, 15 hours, 22 minutes",
+   "credit_limit_monthly_reset_timestamp": "2026-12-01T00:00:00.000Z",
+   "rate_limit_minute": 600
+  },
+  "usageMonth": {
+   "credits_used": 0,
+   "credits_left": 450000
+  },
+  "notice": "Warning, your API Key subscription has expired and will be disabled shortly. Please make a payment during this grace period to avoid an interruption in your service."
+ },
+ "probes": [
+  {
+   "name": "key-info",
+   "path": "/v1/key/info",
+   "params": {},
+   "http": 200,
+   "error_code": 0,
+   "error_message": null,
+   "credit_count": 0,
+   "accessible": true
+  },
+  {
+   "name": "rwa-map",
+   "path": "/v5/real-world-assets/map",
+   "params": {
+    "limit": "5000"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "rwa-info-nvda",
+   "path": "/v5/real-world-assets/info",
+   "params": {
+    "rwa_id": "2"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "rwa-quotes-latest-nvda",
+   "path": "/v5/real-world-assets/quotes/latest",
+   "params": {
+    "rwa_id": "2"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "rwa-quotes-historical-nvda",
+   "path": "/v5/real-world-assets/quotes/historical",
+   "params": {
+    "rwa_id": "2",
+    "count": "5"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "rwa-issuers-list",
+   "path": "/v5/real-world-assets/issuers/list",
+   "params": {},
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "rwa-market-pairs",
+   "path": "/v5/real-world-assets/market-pairs/list",
+   "params": {
+    "rwa_id": "2",
+    "limit": "1"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "ohlcv-v5-nvdac-daily",
+   "path": "/v5/cryptocurrency/ohlcv/historical",
+   "params": {
+    "id": "42461",
+    "interval": "daily",
+    "count": "5"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "ohlcv-v5-eth-hourly",
+   "path": "/v5/cryptocurrency/ohlcv/historical",
+   "params": {
+    "id": "1027",
+    "interval": "hourly",
+    "count": "5"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "quotes-v3-eth",
+   "path": "/v3/cryptocurrency/quotes/latest",
+   "params": {
+    "id": "1027"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "dex-token-nvdac",
+   "path": "/v1/dex/token",
+   "params": {
+    "platform": "base",
+    "address": "0x04689a41629776563e6822f76f2e57d148d28513"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "cmc-ai-map",
+   "path": "/v5/cmc-ai/coins/map",
+   "params": {
+    "crypto_id": "1"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  },
+  {
+   "name": "cmc-ai-latest",
+   "path": "/v5/cmc-ai/latest",
+   "params": {
+    "type": "top_news"
+   },
+   "http": 402,
+   "error_code": "1004",
+   "error_message": "Your API Key's subscription plan has expired.",
+   "credit_count": 0,
+   "accessible": false
+  }
+ ]
+}

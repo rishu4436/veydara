@@ -31,9 +31,9 @@ export const ADAPTERS: AdapterDescriptor[] = [
     chain: "base",
     capabilities: {
       oracleRead: { implemented: true, note: "Live Chainlink feed reads for MAG7 spoke assets (packages/protocols/src/oracle.ts)." },
-      marketDiscovery: { implemented: false, note: "Addresses pinned from address book; reserve caps/LTV reads pending pinned V4 ABI (Phase 3)." },
-      readPositions: { implemented: false, note: "Pending V4 Spoke ABI integration (Phase 3)." },
-      quoteBorrow: { implemented: false, note: "Pending on-chain reserve config reads (Phase 3)." },
+      marketDiscovery: { implemented: true, note: "Live block-pinned reads of all MAG7 spoke reserves: collateral factor, liquidation bonus/fee, collateral risk, paused/frozen/borrowable, add/draw caps, hub liquidity, drawn rate, spoke oracle price (aave-v4-reads.ts; ABIs pinned to aave/aave-v4@4885a7ad)." },
+      readPositions: { implemented: true, note: "Per-user supplied/debt/collateral flags + getUserAccountData; VEYDARA's bigint health factor reproduces the Spoke's value exactly on recorded live positions." },
+      quoteBorrow: { implemented: true, note: "Deterministic max-borrow / liquidation price / APR math (aave-v4-math.ts) + Solver Arena with independent verifier. Simulation only — no transaction is built or sent." },
       deposit: { implemented: false, note: "Fork-only execution planned (Phase 4); no mainnet broadcast without owner approval." },
       borrow: { implemented: false, note: "Fork-only execution planned (Phase 4)." },
       repay: { implemented: false, note: "Phase 4." },

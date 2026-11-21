@@ -1,0 +1,16 @@
+{
+ "_fixture": {
+  "kind": "live-recording",
+  "endpoint": "/v5/real-world-assets/map",
+  "httpStatus": 402,
+  "recordedAt": "2026-11-21T08:36:59.783Z",
+  "note": "LIVE error envelope returned by CMC Pro API for the project key on 2026-11-21 (key not stored). Reconstructed from the probe record: status fields verbatim."
+ },
+ "status": {
+  "timestamp": "2026-11-21T08:36:59.783Z",
+  "error_code": 1004,
+  "error_message": "Your API Key's subscription plan has expired.",
+  "elapsed": 0,
+  "credit_count": 0
+ }
+}

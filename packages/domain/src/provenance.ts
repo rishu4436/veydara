@@ -10,6 +10,8 @@ export type DataSource =
   | "solana-rpc"
   | "chainlink-feed"
   | "aave-address-book"
+  | "aave-v4-spoke"
+  | "veydara-model"
   | "fixture"
   | "user-input";
 
