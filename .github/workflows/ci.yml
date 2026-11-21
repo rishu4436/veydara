@@ -20,6 +20,15 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      - name: E2E (Playwright, controlled fixture dataset)
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results
       - name: Secret scan (no CMC keys / private keys committed)
         run: |
           ! git grep -nE "X-CMC_PRO_API_KEY['\"]?\s*[:=]\s*['\"][0-9a-f]{8}-" -- . ':!*.md' || (echo "possible CMC key committed" && exit 1)

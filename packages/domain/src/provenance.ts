@@ -12,6 +12,7 @@ export type DataSource =
   | "aave-address-book"
   | "aave-v4-spoke"
   | "veydara-model"
+  | "anvil-fork"
   | "fixture"
   | "user-input";
 

@@ -80,12 +80,21 @@ Credits consumed by the probe: **0** (all 402s report `credit_count` 0). Consequ
 | Simple (linear) interest on drawn rate; premium = drawn × risk premium | `libraries/math/MathUtils.sol::calculateLinearInterest`, `Spoke._processUserAccountData` | Used for APR and accrual estimates |
 | Live MAG7 spoke parameters (block 60302763): CF AAPLc 78%, AMZNc 73%, GOOGLc 76%, METAc 65%, MSFTc 79%, NVDAc 70%, TSLAc 65%, SPCXc 55% (collateral risk 10%); max liquidation bonus 5.5% (SPCXc 6.5%); equities not borrowable; USDC borrowable, draw cap 21,000,000, drawn rate ≈3.74%; target HF 1.24 | `fixtures/chain/aave-v4-market.live.json` | Live read; values change — the app always reads fresh |
 
+## 3c. Aave V4 write ABIs, fork execution and B20 tokens
+
+| Claim | Source | Status |
+|---|---|---|
+| Spoke user actions `supply/withdraw/borrow/repay(uint256 reserveId, uint256 amount, address onBehalfOf) returns (uint256,uint256)`, `setUsingAsCollateral(uint256,bool,address)`, `setUserPositionManager(address,bool)`, `isPositionManager`, and the Spoke/Hub/SafeERC20 custom errors | aave/aave-v4 @ `4885a7ad`, `src/spoke/interfaces/ISpoke.sol`, `src/hub/interfaces/IHub.sol`, `src/dependencies/openzeppelin/SafeERC20.sol` | Transcribed to `packages/protocols/src/aave-v4-write-abi.ts`; every action executed successfully on a local anvil fork of Base against the address-book Spoke (`fixtures/fork/*.fork.json`) |
+| The Spoke pulls the underlying from the caller into the Hub (`safeTransferFrom(msg.sender, hub, amount)`), so the approval spender is the Spoke | `src/spoke/Spoke.sol::supply/repay` | Exact-amount approvals to the Spoke succeeded on the fork |
+| Coinbase tokenized equities are Base **B20** Asset tokens (node-native precompiles; 1-byte `0xef` code stub at `0xb2…` addresses) | https://docs.base.org/specifications/b20/ (IB20Factory reference); verified `eth_getCode` = `0xef` for NVDAc | anvil 1.10 executes B20 transfers/approvals on a Base fork (fork receipts) |
+| Fork evidence (2026-11-21, Base block 60315121, anvil chain 31337): supply+collateral+borrow (4 tx), partial repay (2 tx), withdraw (1 tx), all status 1 and reconciled (VEYDARA HF = Spoke HF); a policy-blocked borrow (not signed); a revert drill (status 0, decoded `HealthFactorBelowThreshold()`) | `fixtures/fork/` | **FORK ONLY** — these hashes do not exist on Base mainnet |
+
 ## 4. Market calendar
 
 NYSE 2026 holidays and early closes encoded in `packages/domain/src/market-session.ts` follow https://www.nyse.com/markets/hours-calendars — **re-verify against the page before relying on it** (recorded from the published calendar, not machine-fetched in this run).
 
 ## 5. Not claimed
 
-- No transaction has been sent, simulated on a fork, or signed by VEYDARA.
+- No transaction has been signed for, or sent to, Base mainnet. Fork transactions (chain 31337) are labelled FORK everywhere and were signed only with anvil-generated test keys.
 - Borrow parameters shown are read live from the Spoke/Hub; VEYDARA does not claim the user is eligible to use the Equities Hub.
 - No performance, PnL or TVL figure is computed.

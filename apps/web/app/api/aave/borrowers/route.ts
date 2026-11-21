@@ -3,6 +3,7 @@ import { base } from "viem/chains";
 import { AAVE_V4_BASE } from "@veydara/protocols";
 import { json, rateLimit } from "@/lib/server/http";
 import { serverEnv } from "@/lib/server/env";
+import { fixtureBorrowers, isFixtureMode } from "@/lib/server/dataset";
 
 export const dynamic = "force-dynamic";
 const BORROW = parseAbiItem("event Borrow(uint256 indexed reserveId, address indexed caller, address indexed user, uint256 drawnShares, uint256 drawnAmount)");
@@ -17,6 +18,7 @@ const g = globalThis as unknown as { __borrowers?: { at: number; data: unknown }
 export async function GET(req: Request) {
   const limited = rateLimit(req, "aave-borrowers", 6);
   if (limited) return limited;
+  if (isFixtureMode()) return json({ status: "ok", source: "fixture", borrowers: fixtureBorrowers().map((user) => ({ user, lastBorrowBlock: "fixture", txHash: "" })) });
   if (g.__borrowers && Date.now() - g.__borrowers.at < 10 * 60_000) return json(g.__borrowers.data);
   const env = serverEnv();
   const rpc = process.env.BASE_LOGS_RPC_URL || env.BASE_RPC_URL || "https://base-rpc.publicnode.com";

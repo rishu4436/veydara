@@ -1,0 +1,365 @@
+{
+  "kind": "fork-execution",
+  "label": "FORK",
+  "id": "6fcc3880-de8d-4cd6-b66c-51f7000072fd",
+  "createdAt": "2026-11-21T09:30:17.358Z",
+  "drill": true,
+  "fork": {
+    "label": "FORK",
+    "chainId": 31337,
+    "rpcHost": "127.0.0.1:8545",
+    "forkBlockNumber": "60315121",
+    "upstreamHost": "base-rpc.publicnode.com",
+    "network": "base",
+    "currentBlock": "60315129",
+    "currentTimestamp": 1795253401,
+    "inspectedAt": "2026-11-21T09:30:17.343Z"
+  },
+  "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+  "intent": {
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "actions": [
+      {
+        "kind": "borrow",
+        "reserveId": 7,
+        "amount": "200000000"
+      }
+    ],
+    "label": "REVERT DRILL — force-send borrow 200 USDC with fixed gas (intentional)",
+    "source": "revert-drill"
+  },
+  "route": [
+    {
+      "actionIndex": 0,
+      "kind": "borrow",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "functionName": "borrow",
+      "args": [
+        "7",
+        "200000000",
+        "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+      ],
+      "data": "0xd6bda0c00000000000000000000000000000000000000000000000000000000000000007000000000000000000000000000000000000000000000000000000000bebc200000000000000000000000000f75267c7f0c75e349e60df0eac6b2d44c4f5a2e8",
+      "reserveId": 7,
+      "symbol": "USDC",
+      "amount": "200000000",
+      "summary": "Borrow 200 USDC from the MAG7 Spoke (reserve #7)",
+      "index": 0,
+      "value": "0"
+    }
+  ],
+  "verdict": {
+    "accepted": false,
+    "checks": [
+      {
+        "actionIndex": 0,
+        "name": "borrow USDC: reserve borrowable and open",
+        "pass": true,
+        "detail": "borrowable=true paused=false frozen=false"
+      },
+      {
+        "actionIndex": 0,
+        "name": "borrow USDC: within hub liquidity",
+        "pass": true,
+        "detail": "liquidity=1420497343425"
+      },
+      {
+        "actionIndex": 0,
+        "name": "borrow USDC: within spoke draw cap",
+        "pass": true,
+        "detail": "drawCap=21000000 tokens, debt=7492003825184"
+      },
+      {
+        "actionIndex": 0,
+        "name": "borrow USDC: health factor ≥ 1.00 after borrow (protocol)",
+        "pass": false,
+        "detail": "HF=0.3305"
+      },
+      {
+        "actionIndex": 0,
+        "name": "borrow USDC: health factor ≥ VEYDARA policy floor",
+        "pass": false,
+        "detail": "HF=0.3305 floor=1.25"
+      }
+    ],
+    "hfAfter": [
+      "330513287817098136"
+    ],
+    "predicted": {
+      "healthFactorWad": "330513287817098136",
+      "reserves": [
+        {
+          "reserveId": 0,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 1,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 2,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 3,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 4,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 5,
+          "supplied": "80000000",
+          "debtRay": "0",
+          "wallet": "20000000",
+          "collateralEnabled": true
+        },
+        {
+          "reserveId": 6,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 7,
+          "supplied": "0",
+          "debtRay": "220000001546346960731075285887556652",
+          "wallet": "220000000",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 8,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        }
+      ]
+    },
+    "policyMinHfWad": "1250000000000000000"
+  },
+  "simulation": null,
+  "preview": {
+    "previewHash": "0xdd0ae522f34267700e43acd9eb8e8ccb2060c27a5894eaa67f6acae5857d9a30",
+    "chainLabel": "FORK · anvil chain 31337 · Base state forked at block 60315121 from base-rpc.publicnode.com. Nothing is sent to Base mainnet.",
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "lines": [
+      {
+        "index": 0,
+        "text": "Borrow 200 USDC from the MAG7 Spoke (reserve #7)",
+        "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+        "functionName": "borrow",
+        "gasInSimulation": null
+      }
+    ],
+    "healthFactor": {
+      "before": "3.6356",
+      "afterVerifier": "0.3305",
+      "afterSimulation": "—"
+    },
+    "warnings": [
+      "Verifier: borrow USDC: health factor ≥ 1.00 after borrow (protocol) — HF=0.3305",
+      "Verifier: borrow USDC: health factor ≥ VEYDARA policy floor — HF=0.3305 floor=1.25",
+      "Simulation skipped because the verifier rejected the route."
+    ],
+    "notes": [
+      "Signed locally with an anvil-generated test key; chain id 31337 makes the signature invalid on Base (EIP-155).",
+      "Approvals are for the exact amount, never unlimited.",
+      "Oracle prices are the Spoke's Chainlink-backed prices as of the fork block; equity markets may be closed."
+    ],
+    "readyToSign": false
+  },
+  "funding": [],
+  "txs": [
+    {
+      "stepIndex": 0,
+      "kind": "borrow",
+      "summary": "Borrow 200 USDC from the MAG7 Spoke (reserve #7)",
+      "status": "reverted",
+      "hash": "0x7f5cc5a4b73152c369844389fdeca64cf69142ed6c11180cafc7290b88f0885b",
+      "blockNumber": "60315130",
+      "gasUsed": "211947",
+      "nonce": 7,
+      "signedChainId": 31337,
+      "from": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "revert": {
+        "name": "HealthFactorBelowThreshold",
+        "args": [],
+        "selector": "0x851aedc1",
+        "raw": "0x851aedc1",
+        "message": "HealthFactorBelowThreshold()"
+      }
+    }
+  ],
+  "before": {
+    "blockNumber": "60315129",
+    "healthFactorWad": "3635645910443990208",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "80000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "20000000",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "20000002",
+        "collateralEnabled": false,
+        "wallet": "20000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "after": {
+    "blockNumber": "60315130",
+    "healthFactorWad": "3635645910443990208",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "80000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "20000000",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "20000002",
+        "collateralEnabled": false,
+        "wallet": "20000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "reconciliation": null,
+  "outcome": "reverted",
+  "outcomeDetail": "Reverted on the fork at step 1 (borrow): HealthFactorBelowThreshold(). Later steps were not sent.",
+  "stages": [
+    {
+      "id": "fork-guard",
+      "status": "pass",
+      "ms": 2,
+      "detail": "anvil chain 31337 @ block 60315129, forked from base-rpc.publicnode.com at 60315121"
+    },
+    {
+      "id": "validate",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1 action(s) for anvil test account 0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+    },
+    {
+      "id": "fresh-state",
+      "status": "pass",
+      "ms": 15,
+      "detail": "block 60315129; 9 reserves; Spoke HF 3.6356"
+    },
+    {
+      "id": "route",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1. borrow"
+    },
+    {
+      "id": "verifier",
+      "status": "fail",
+      "ms": 0,
+      "detail": "2 check(s) failed: borrow USDC: health factor ≥ 1.00 after borrow (protocol); borrow USDC: health factor ≥ VEYDARA policy floor"
+    },
+    {
+      "id": "simulation",
+      "status": "skipped",
+      "ms": 0,
+      "detail": "verifier rejected the route"
+    },
+    {
+      "id": "preview",
+      "status": "fail",
+      "ms": 0,
+      "detail": "Verifier: borrow USDC: health factor ≥ 1.00 after borrow (protocol) — HF=0.3305 | Verifier: borrow USDC: health factor ≥ VEYDARA policy floor — HF=0.3305 floor=1.25 | Simulation skipped because the verifier rejected the route."
+    },
+    {
+      "id": "freshness-recheck",
+      "status": "pass",
+      "ms": 16,
+      "detail": "route unchanged at block 60315129"
+    },
+    {
+      "id": "signing",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1 tx signed locally, chain id 31337"
+    },
+    {
+      "id": "sending",
+      "status": "pass",
+      "ms": 160,
+      "detail": "1 tx sent to the fork RPC 127.0.0.1:8545"
+    },
+    {
+      "id": "receipts",
+      "status": "fail",
+      "ms": 0,
+      "detail": "step 1 reverted: HealthFactorBelowThreshold()"
+    },
+    {
+      "id": "reconcile",
+      "status": "skipped",
+      "ms": 0,
+      "detail": "route did not complete"
+    },
+    {
+      "id": "proof",
+      "status": "pass",
+      "ms": 0,
+      "detail": "record 6fcc3880 written for the Proof Center (reverted)"
+    }
+  ],
+  "sources": {
+    "abi": {
+      "repo": "https://github.com/aave/aave-v4",
+      "commit": "4885a7ad44391eb6635954ea3b353fa7f12222f5",
+      "committedAt": "2026-11-14T05:32:47Z",
+      "files": [
+        "src/spoke/interfaces/ISpoke.sol",
+        "src/hub/interfaces/IHub.sol",
+        "src/hub/interfaces/IHubBase.sol",
+        "src/spoke/interfaces/IAaveOracle.sol",
+        "src/spoke/interfaces/IPriceOracle.sol"
+      ],
+      "retrievedAt": "2026-11-21"
+    },
+    "addresses": {
+      "repo": "https://github.com/bgd-labs/aave-address-book",
+      "file": "https://github.com/bgd-labs/aave-address-book/blob/967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe/src/AaveV4Base.sol",
+      "commit": "967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe",
+      "committedAt": "2026-11-10T15:37:00Z",
+      "retrievedAt": "2026-11-21"
+    }
+  }
+}

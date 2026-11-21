@@ -10,7 +10,7 @@ const securityHeaders = [
 
 const config: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["@veydara/domain", "@veydara/cmc", "@veydara/chains", "@veydara/quant", "@veydara/protocols"],
+  transpilePackages: ["@veydara/domain", "@veydara/cmc", "@veydara/chains", "@veydara/quant", "@veydara/protocols", "@veydara/execution"],
   turbopack: { root: path.join(import.meta.dirname, "../..") },
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),
   images: { remotePatterns: [{ protocol: "https", hostname: "s2.coinmarketcap.com" }] },

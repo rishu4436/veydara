@@ -7,3 +7,5 @@ export * from "./aave-v4-reads";
 export * from "./aave-v4-legs";
 export * from "./strategy";
 export * from "./verifier";
+export * from "./aave-v4-write-abi";
+export * from "./guardian";

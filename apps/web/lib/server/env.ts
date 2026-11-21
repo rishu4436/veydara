@@ -7,6 +7,12 @@ const EnvSchema = z.object({
   CMC_PLAN: z.enum(["basic", "startup", "growth", "professional", "enterprise"]).default("startup"),
   BASE_RPC_URL: z.url().optional(),
   SOLANA_RPC_URL: z.url().optional(),
+  /** Local anvil fork (loopback only — enforced again in @veydara/execution). */
+  FORK_RPC_URL: z.url().default("http://127.0.0.1:8545"),
+  FORK_ACCOUNTS_FILE: z.string().default("/tmp/veydara-fork/anvil-accounts.json"),
+  FORK_RECORDS_DIR: z.string().default("/tmp/veydara-fork/records"),
+  /** "fixture" serves the committed, labelled snapshots instead of live reads (e2e / offline demo). */
+  VEYDARA_DATASET: z.enum(["live", "fixture"]).default("live"),
 });
 
 export type ServerEnv = z.infer<typeof EnvSchema>;

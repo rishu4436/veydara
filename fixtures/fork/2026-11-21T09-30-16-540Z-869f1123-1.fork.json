@@ -1,0 +1,463 @@
+{
+  "kind": "fork-execution",
+  "label": "FORK",
+  "id": "869f1123-1206-4bb4-beb3-7e54a4c07f02",
+  "createdAt": "2026-11-21T09:30:16.540Z",
+  "drill": false,
+  "fork": {
+    "label": "FORK",
+    "chainId": 31337,
+    "rpcHost": "127.0.0.1:8545",
+    "forkBlockNumber": "60315121",
+    "upstreamHost": "base-rpc.publicnode.com",
+    "network": "base",
+    "currentBlock": "60315126",
+    "currentTimestamp": 1795253400,
+    "inspectedAt": "2026-11-21T09:30:16.316Z"
+  },
+  "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+  "intent": {
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "actions": [
+      {
+        "kind": "repay",
+        "reserveId": 7,
+        "amount": "10000000"
+      }
+    ],
+    "label": "Lifecycle 2/3 — partial repay 10 USDC",
+    "source": "lifecycle-preset"
+  },
+  "route": [
+    {
+      "actionIndex": 0,
+      "kind": "approve",
+      "to": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "functionName": "approve",
+      "args": [
+        "0x17905Db0e4A3514467539956c084180616AE7B8D",
+        "10000000"
+      ],
+      "data": "0x095ea7b300000000000000000000000017905db0e4a3514467539956c084180616ae7b8d0000000000000000000000000000000000000000000000000000000000989680",
+      "reserveId": 7,
+      "symbol": "USDC",
+      "amount": "10000000",
+      "summary": "Approve the Aave V4 MAG7 Spoke to pull exactly 10 USDC (not unlimited)",
+      "index": 0,
+      "value": "0"
+    },
+    {
+      "actionIndex": 0,
+      "kind": "repay",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "functionName": "repay",
+      "args": [
+        "7",
+        "10000000",
+        "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+      ],
+      "data": "0xb1e8f8ef00000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000000000000000000000000000000989680000000000000000000000000f75267c7f0c75e349e60df0eac6b2d44c4f5a2e8",
+      "reserveId": 7,
+      "symbol": "USDC",
+      "amount": "10000000",
+      "summary": "Repay 10 USDC to the MAG7 Spoke (reserve #7)",
+      "index": 1,
+      "value": "0"
+    }
+  ],
+  "verdict": {
+    "accepted": true,
+    "checks": [
+      {
+        "actionIndex": 0,
+        "name": "repay USDC: reserve not paused",
+        "pass": true,
+        "detail": "paused=false"
+      },
+      {
+        "actionIndex": 0,
+        "name": "repay USDC: account has debt in this reserve",
+        "pass": true,
+        "detail": "debtRay=30000000777507344300447080949336505"
+      },
+      {
+        "actionIndex": 0,
+        "name": "repay USDC: within wallet balance",
+        "pass": true,
+        "detail": "pull=10000000 wallet=30000000"
+      }
+    ],
+    "hfAfter": [
+      "4544557562756768922"
+    ],
+    "predicted": {
+      "healthFactorWad": "4544557562756768922",
+      "reserves": [
+        {
+          "reserveId": 0,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 1,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 2,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 3,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 4,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 5,
+          "supplied": "100000000",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": true
+        },
+        {
+          "reserveId": 6,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 7,
+          "supplied": "0",
+          "debtRay": "20000000777507344300447080949336505",
+          "wallet": "20000000",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 8,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        }
+      ]
+    },
+    "policyMinHfWad": "1250000000000000000"
+  },
+  "simulation": {
+    "ok": true,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "approve",
+        "ok": true,
+        "gasUsed": "55437",
+        "revert": null
+      },
+      {
+        "index": 1,
+        "kind": "repay",
+        "ok": true,
+        "gasUsed": "149949",
+        "revert": null
+      }
+    ],
+    "firstRevert": null,
+    "healthFactorWadAfter": "4544557388054987760",
+    "suppliedAfter": {
+      "0": "0",
+      "1": "0",
+      "2": "0",
+      "3": "0",
+      "4": "0",
+      "5": "100000000",
+      "6": "0",
+      "7": "0",
+      "8": "0"
+    },
+    "debtAfter": {
+      "0": "0",
+      "1": "0",
+      "2": "0",
+      "3": "0",
+      "4": "0",
+      "5": "0",
+      "6": "0",
+      "7": "20000002",
+      "8": "0"
+    },
+    "snapshotReverted": true
+  },
+  "preview": {
+    "previewHash": "0xd9ae61c2411854ad8773229cf343ce0c456bc43ee6d937f9be9032b204e27b3d",
+    "chainLabel": "FORK · anvil chain 31337 · Base state forked at block 60315121 from base-rpc.publicnode.com. Nothing is sent to Base mainnet.",
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "lines": [
+      {
+        "index": 0,
+        "text": "Approve the Aave V4 MAG7 Spoke to pull exactly 10 USDC (not unlimited)",
+        "to": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "functionName": "approve",
+        "gasInSimulation": "55437"
+      },
+      {
+        "index": 1,
+        "text": "Repay 10 USDC to the MAG7 Spoke (reserve #7)",
+        "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+        "functionName": "repay",
+        "gasInSimulation": "149949"
+      }
+    ],
+    "healthFactor": {
+      "before": "3.0297",
+      "afterVerifier": "4.5446",
+      "afterSimulation": "4.5446"
+    },
+    "warnings": [],
+    "notes": [
+      "Signed locally with an anvil-generated test key; chain id 31337 makes the signature invalid on Base (EIP-155).",
+      "Approvals are for the exact amount, never unlimited.",
+      "Oracle prices are the Spoke's Chainlink-backed prices as of the fork block; equity markets may be closed."
+    ],
+    "readyToSign": true
+  },
+  "funding": [],
+  "txs": [
+    {
+      "stepIndex": 0,
+      "kind": "approve",
+      "summary": "Approve the Aave V4 MAG7 Spoke to pull exactly 10 USDC (not unlimited)",
+      "status": "success",
+      "hash": "0x28082c8bf67fad0b2f662ff9818347b6e3dbdf0d927bc587351a74f9f0a1b379",
+      "blockNumber": "60315127",
+      "gasUsed": "55437",
+      "nonce": 4,
+      "signedChainId": 31337,
+      "from": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+      "to": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "revert": null
+    },
+    {
+      "stepIndex": 1,
+      "kind": "repay",
+      "summary": "Repay 10 USDC to the MAG7 Spoke (reserve #7)",
+      "status": "success",
+      "hash": "0x8c7335dd9526b88dd79843271dee8ea011c238b3584f749ead6763a75a45adad",
+      "blockNumber": "60315128",
+      "gasUsed": "149949",
+      "nonce": 5,
+      "signedChainId": 31337,
+      "from": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "revert": null
+    }
+  ],
+  "before": {
+    "blockNumber": "60315126",
+    "healthFactorWad": "3029705081098143615",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "100000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "0",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "30000001",
+        "collateralEnabled": false,
+        "wallet": "30000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "after": {
+    "blockNumber": "60315128",
+    "healthFactorWad": "4544557388054987760",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "100000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "0",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "20000002",
+        "collateralEnabled": false,
+        "wallet": "20000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "reconciliation": {
+    "ok": true,
+    "checks": [
+      {
+        "name": "USDC supplied matches prediction (±2 units rounding)",
+        "pass": true,
+        "detail": "predicted=0 actual=0"
+      },
+      {
+        "name": "USDC debt matches prediction within accrued-interest bound",
+        "pass": true,
+        "detail": "predicted=20000000 actual=20000001 (units), bound=2 over 3s"
+      },
+      {
+        "name": "USDC wallet balance matches prediction (±2 units)",
+        "pass": true,
+        "detail": "predicted=20000000 actual=20000000"
+      },
+      {
+        "name": "USDC collateral flag matches",
+        "pass": true,
+        "detail": "predicted=false actual=false"
+      },
+      {
+        "name": "VEYDARA bigint HF equals Spoke getUserAccountData HF",
+        "pass": true,
+        "detail": "veydara=4544557388054987760 spoke=4544557388054987760"
+      },
+      {
+        "name": "Spoke HF within 0.1% of verifier prediction (interest drift)",
+        "pass": true,
+        "detail": "predicted=4544557562756768922 spoke=4544557388054987760"
+      }
+    ],
+    "healthFactor": {
+      "spoke": "4544557388054987760",
+      "veydara": "4544557388054987760",
+      "matches": true
+    }
+  },
+  "outcome": "executed",
+  "outcomeDetail": "All 2 transaction(s) mined on the fork.",
+  "stages": [
+    {
+      "id": "fork-guard",
+      "status": "pass",
+      "ms": 2,
+      "detail": "anvil chain 31337 @ block 60315126, forked from base-rpc.publicnode.com at 60315121"
+    },
+    {
+      "id": "validate",
+      "status": "pass",
+      "ms": 1,
+      "detail": "1 action(s) for anvil test account 0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+    },
+    {
+      "id": "fresh-state",
+      "status": "pass",
+      "ms": 19,
+      "detail": "block 60315126; 9 reserves; Spoke HF 3.0297"
+    },
+    {
+      "id": "route",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1. approve, 2. repay"
+    },
+    {
+      "id": "verifier",
+      "status": "pass",
+      "ms": 0,
+      "detail": "all 3 checks pass"
+    },
+    {
+      "id": "simulation",
+      "status": "pass",
+      "ms": 204,
+      "detail": "2 step(s) succeeded in a reverted snapshot; Spoke HF after = 4.5446"
+    },
+    {
+      "id": "preview",
+      "status": "pass",
+      "ms": 0,
+      "detail": "preview 0xd9ae61c2411854ad… ready to sign"
+    },
+    {
+      "id": "freshness-recheck",
+      "status": "pass",
+      "ms": 21,
+      "detail": "route unchanged at block 60315126"
+    },
+    {
+      "id": "signing",
+      "status": "pass",
+      "ms": 0,
+      "detail": "2 tx signed locally, chain id 31337"
+    },
+    {
+      "id": "sending",
+      "status": "pass",
+      "ms": 323,
+      "detail": "2 tx sent to the fork RPC 127.0.0.1:8545"
+    },
+    {
+      "id": "receipts",
+      "status": "pass",
+      "ms": 0,
+      "detail": "2 receipt(s), all status 1"
+    },
+    {
+      "id": "reconcile",
+      "status": "pass",
+      "ms": 0,
+      "detail": "6/6 checks; Spoke HF 4.5446"
+    },
+    {
+      "id": "proof",
+      "status": "pass",
+      "ms": 0,
+      "detail": "record 869f1123 written for the Proof Center (executed)"
+    }
+  ],
+  "sources": {
+    "abi": {
+      "repo": "https://github.com/aave/aave-v4",
+      "commit": "4885a7ad44391eb6635954ea3b353fa7f12222f5",
+      "committedAt": "2026-11-14T05:32:47Z",
+      "files": [
+        "src/spoke/interfaces/ISpoke.sol",
+        "src/hub/interfaces/IHub.sol",
+        "src/hub/interfaces/IHubBase.sol",
+        "src/spoke/interfaces/IAaveOracle.sol",
+        "src/spoke/interfaces/IPriceOracle.sol"
+      ],
+      "retrievedAt": "2026-11-21"
+    },
+    "addresses": {
+      "repo": "https://github.com/bgd-labs/aave-address-book",
+      "file": "https://github.com/bgd-labs/aave-address-book/blob/967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe/src/AaveV4Base.sol",
+      "commit": "967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe",
+      "committedAt": "2026-11-10T15:37:00Z",
+      "retrievedAt": "2026-11-21"
+    }
+  }
+}

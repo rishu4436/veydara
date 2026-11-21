@@ -1,0 +1,430 @@
+{
+  "kind": "fork-execution",
+  "label": "FORK",
+  "id": "2bb33d8a-353c-45e6-9c0c-79f9b31e8833",
+  "createdAt": "2026-11-21T09:30:17.104Z",
+  "drill": false,
+  "fork": {
+    "label": "FORK",
+    "chainId": 31337,
+    "rpcHost": "127.0.0.1:8545",
+    "forkBlockNumber": "60315121",
+    "upstreamHost": "base-rpc.publicnode.com",
+    "network": "base",
+    "currentBlock": "60315128",
+    "currentTimestamp": 1795253401,
+    "inspectedAt": "2026-11-21T09:30:16.905Z"
+  },
+  "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+  "intent": {
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "actions": [
+      {
+        "kind": "withdraw",
+        "reserveId": 5,
+        "amount": "20000000"
+      }
+    ],
+    "label": "Lifecycle 3/3 — withdraw 0.2 NVDAc",
+    "source": "lifecycle-preset"
+  },
+  "route": [
+    {
+      "actionIndex": 0,
+      "kind": "withdraw",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "functionName": "withdraw",
+      "args": [
+        "5",
+        "20000000",
+        "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+      ],
+      "data": "0x0ad58d2f00000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000001312d00000000000000000000000000f75267c7f0c75e349e60df0eac6b2d44c4f5a2e8",
+      "reserveId": 5,
+      "symbol": "NVDAc",
+      "amount": "20000000",
+      "summary": "Withdraw 0.2 NVDAc from the MAG7 Spoke (reserve #5)",
+      "index": 0,
+      "value": "0"
+    }
+  ],
+  "verdict": {
+    "accepted": true,
+    "checks": [
+      {
+        "actionIndex": 0,
+        "name": "withdraw NVDAc: reserve not paused",
+        "pass": true,
+        "detail": "paused=false"
+      },
+      {
+        "actionIndex": 0,
+        "name": "withdraw NVDAc: has a supplied balance",
+        "pass": true,
+        "detail": "supplied=100000000"
+      },
+      {
+        "actionIndex": 0,
+        "name": "withdraw NVDAc: within hub liquidity",
+        "pass": true,
+        "detail": "liquidity=2678043504519"
+      },
+      {
+        "actionIndex": 0,
+        "name": "withdraw NVDAc: health factor ≥ 1.00 after withdraw (protocol)",
+        "pass": true,
+        "detail": "HF=3.6356"
+      },
+      {
+        "actionIndex": 0,
+        "name": "withdraw NVDAc: health factor ≥ VEYDARA policy floor",
+        "pass": true,
+        "detail": "HF=3.6356"
+      }
+    ],
+    "hfAfter": [
+      "3635645910443990208"
+    ],
+    "predicted": {
+      "healthFactorWad": "3635645910443990208",
+      "reserves": [
+        {
+          "reserveId": 0,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 1,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 2,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 3,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 4,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 5,
+          "supplied": "80000000",
+          "debtRay": "0",
+          "wallet": "20000000",
+          "collateralEnabled": true
+        },
+        {
+          "reserveId": 6,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 7,
+          "supplied": "0",
+          "debtRay": "20000001546346960731075285887556652",
+          "wallet": "20000000",
+          "collateralEnabled": false
+        },
+        {
+          "reserveId": 8,
+          "supplied": "0",
+          "debtRay": "0",
+          "wallet": "0",
+          "collateralEnabled": false
+        }
+      ]
+    },
+    "policyMinHfWad": "1250000000000000000"
+  },
+  "simulation": {
+    "ok": true,
+    "steps": [
+      {
+        "index": 0,
+        "kind": "withdraw",
+        "ok": true,
+        "gasUsed": "221798",
+        "revert": null
+      }
+    ],
+    "firstRevert": null,
+    "healthFactorWadAfter": "3635645910443990208",
+    "suppliedAfter": {
+      "0": "0",
+      "1": "0",
+      "2": "0",
+      "3": "0",
+      "4": "0",
+      "5": "80000000",
+      "6": "0",
+      "7": "0",
+      "8": "0"
+    },
+    "debtAfter": {
+      "0": "0",
+      "1": "0",
+      "2": "0",
+      "3": "0",
+      "4": "0",
+      "5": "0",
+      "6": "0",
+      "7": "20000002",
+      "8": "0"
+    },
+    "snapshotReverted": true
+  },
+  "preview": {
+    "previewHash": "0xfe99e3cc9502310562ff56dccb59fb4e290187caeee8fef14056b83aa3b6c0e9",
+    "chainLabel": "FORK · anvil chain 31337 · Base state forked at block 60315121 from base-rpc.publicnode.com. Nothing is sent to Base mainnet.",
+    "account": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+    "lines": [
+      {
+        "index": 0,
+        "text": "Withdraw 0.2 NVDAc from the MAG7 Spoke (reserve #5)",
+        "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+        "functionName": "withdraw",
+        "gasInSimulation": "221798"
+      }
+    ],
+    "healthFactor": {
+      "before": "4.5446",
+      "afterVerifier": "3.6356",
+      "afterSimulation": "3.6356"
+    },
+    "warnings": [],
+    "notes": [
+      "Signed locally with an anvil-generated test key; chain id 31337 makes the signature invalid on Base (EIP-155).",
+      "Approvals are for the exact amount, never unlimited.",
+      "Oracle prices are the Spoke's Chainlink-backed prices as of the fork block; equity markets may be closed."
+    ],
+    "readyToSign": true
+  },
+  "funding": [],
+  "txs": [
+    {
+      "stepIndex": 0,
+      "kind": "withdraw",
+      "summary": "Withdraw 0.2 NVDAc from the MAG7 Spoke (reserve #5)",
+      "status": "success",
+      "hash": "0xb1f1c7343a73cf964b314b50709865360b4077c434c20d56c1ad32f8b3a0b8c3",
+      "blockNumber": "60315129",
+      "gasUsed": "221798",
+      "nonce": 6,
+      "signedChainId": 31337,
+      "from": "0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8",
+      "to": "0x17905Db0e4A3514467539956c084180616AE7B8D",
+      "revert": null
+    }
+  ],
+  "before": {
+    "blockNumber": "60315128",
+    "healthFactorWad": "4544557388054987760",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "100000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "0",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "20000002",
+        "collateralEnabled": false,
+        "wallet": "20000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "after": {
+    "blockNumber": "60315129",
+    "healthFactorWad": "3635645910443990208",
+    "reserves": [
+      {
+        "reserveId": 5,
+        "symbol": "NVDAc",
+        "supplied": "80000000",
+        "debt": "0",
+        "collateralEnabled": true,
+        "wallet": "20000000",
+        "decimals": 8
+      },
+      {
+        "reserveId": 7,
+        "symbol": "USDC",
+        "supplied": "0",
+        "debt": "20000002",
+        "collateralEnabled": false,
+        "wallet": "20000000",
+        "decimals": 6
+      }
+    ]
+  },
+  "reconciliation": {
+    "ok": true,
+    "checks": [
+      {
+        "name": "NVDAc supplied matches prediction (±2 units rounding)",
+        "pass": true,
+        "detail": "predicted=80000000 actual=80000000"
+      },
+      {
+        "name": "NVDAc debt matches prediction within accrued-interest bound",
+        "pass": true,
+        "detail": "predicted=0 actual=0 (units), bound=2 over 2s"
+      },
+      {
+        "name": "NVDAc wallet balance matches prediction (±2 units)",
+        "pass": true,
+        "detail": "predicted=20000000 actual=20000000"
+      },
+      {
+        "name": "NVDAc collateral flag matches",
+        "pass": true,
+        "detail": "predicted=true actual=true"
+      },
+      {
+        "name": "VEYDARA bigint HF equals Spoke getUserAccountData HF",
+        "pass": true,
+        "detail": "veydara=3635645910443990208 spoke=3635645910443990208"
+      },
+      {
+        "name": "Spoke HF within 0.1% of verifier prediction (interest drift)",
+        "pass": true,
+        "detail": "predicted=3635645910443990208 spoke=3635645910443990208"
+      }
+    ],
+    "healthFactor": {
+      "spoke": "3635645910443990208",
+      "veydara": "3635645910443990208",
+      "matches": true
+    }
+  },
+  "outcome": "executed",
+  "outcomeDetail": "All 1 transaction(s) mined on the fork.",
+  "stages": [
+    {
+      "id": "fork-guard",
+      "status": "pass",
+      "ms": 2,
+      "detail": "anvil chain 31337 @ block 60315128, forked from base-rpc.publicnode.com at 60315121"
+    },
+    {
+      "id": "validate",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1 action(s) for anvil test account 0xf75267c7f0C75e349E60dF0EAC6B2D44C4F5A2E8"
+    },
+    {
+      "id": "fresh-state",
+      "status": "pass",
+      "ms": 17,
+      "detail": "block 60315128; 9 reserves; Spoke HF 4.5446"
+    },
+    {
+      "id": "route",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1. withdraw"
+    },
+    {
+      "id": "verifier",
+      "status": "pass",
+      "ms": 0,
+      "detail": "all 5 checks pass"
+    },
+    {
+      "id": "simulation",
+      "status": "pass",
+      "ms": 182,
+      "detail": "1 step(s) succeeded in a reverted snapshot; Spoke HF after = 3.6356"
+    },
+    {
+      "id": "preview",
+      "status": "pass",
+      "ms": 0,
+      "detail": "preview 0xfe99e3cc95023105… ready to sign"
+    },
+    {
+      "id": "freshness-recheck",
+      "status": "pass",
+      "ms": 20,
+      "detail": "route unchanged at block 60315128"
+    },
+    {
+      "id": "signing",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1 tx signed locally, chain id 31337"
+    },
+    {
+      "id": "sending",
+      "status": "pass",
+      "ms": 174,
+      "detail": "1 tx sent to the fork RPC 127.0.0.1:8545"
+    },
+    {
+      "id": "receipts",
+      "status": "pass",
+      "ms": 0,
+      "detail": "1 receipt(s), all status 1"
+    },
+    {
+      "id": "reconcile",
+      "status": "pass",
+      "ms": 0,
+      "detail": "6/6 checks; Spoke HF 3.6356"
+    },
+    {
+      "id": "proof",
+      "status": "pass",
+      "ms": 0,
+      "detail": "record 2bb33d8a written for the Proof Center (executed)"
+    }
+  ],
+  "sources": {
+    "abi": {
+      "repo": "https://github.com/aave/aave-v4",
+      "commit": "4885a7ad44391eb6635954ea3b353fa7f12222f5",
+      "committedAt": "2026-11-14T05:32:47Z",
+      "files": [
+        "src/spoke/interfaces/ISpoke.sol",
+        "src/hub/interfaces/IHub.sol",
+        "src/hub/interfaces/IHubBase.sol",
+        "src/spoke/interfaces/IAaveOracle.sol",
+        "src/spoke/interfaces/IPriceOracle.sol"
+      ],
+      "retrievedAt": "2026-11-21"
+    },
+    "addresses": {
+      "repo": "https://github.com/bgd-labs/aave-address-book",
+      "file": "https://github.com/bgd-labs/aave-address-book/blob/967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe/src/AaveV4Base.sol",
+      "commit": "967c772c19c63c8728c2a3bcf34f6bd5b0ff9abe",
+      "committedAt": "2026-11-10T15:37:00Z",
+      "retrievedAt": "2026-11-21"
+    }
+  }
+}

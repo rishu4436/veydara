@@ -11,6 +11,7 @@ export const I = {
   futures: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M3 12h4l2-6 3 12 2-6h7" /></svg>),
   guardian: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M12 3 4.5 6v5.5c0 4.3 3.1 8 7.5 9.5 4.4-1.5 7.5-5.2 7.5-9.5V6z" /><path d="m9 12 2 2 4-4" /></svg>),
   proof: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z" /><path d="M14 3.5V8h4M10 13h5M10 16.5h5" /></svg>),
+  fork: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><circle cx="6" cy="5" r="2" /><circle cx="18" cy="5" r="2" /><circle cx="12" cy="19" r="2" /><path d="M6 7v2a4 4 0 0 0 4 4h4a4 4 0 0 0 4-4V7M12 13v4" /></svg>),
   wallet: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><rect x="3.5" y="6" width="17" height="13" rx="2.5" /><path d="M16 12.5h2M3.5 9.5h17" /></svg>),
   bell: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></svg>),
   eye: (p: SVGProps<SVGSVGElement>) => (<svg {...base(p)}><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="2.8" /></svg>),

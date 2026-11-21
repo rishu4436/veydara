@@ -21,13 +21,19 @@
     "verify:registry": "node scripts/verify-registry.mjs",
     "record:cmc": "node scripts/record-cmc-keyless.mjs",
     "probe:cmc": "node scripts/probe-cmc-plan.mjs --save",
-    "record:aave": "VEYDARA_LIVE_TESTS=1 VEYDARA_RECORD=1 vitest run tests/live/aave-v4-record.test.ts"
+    "record:aave": "VEYDARA_LIVE_TESTS=1 VEYDARA_RECORD=1 vitest run tests/live/aave-v4-record.test.ts",
+    "fork": "node scripts/fork.mjs",
+    "record:fork": "VEYDARA_FORK_TESTS=1 vitest run tests/fork",
+    "e2e": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.65.1",
     "@types/node": "^22.10.0",
     "@veydara/chains": "workspace:*",
     "@veydara/cmc": "workspace:*",
+    "@veydara/domain": "workspace:*",
+    "@veydara/execution": "workspace:*",
     "@veydara/protocols": "workspace:*",
     "eslint": "^9.39.0",
     "globals": "^16.0.0",

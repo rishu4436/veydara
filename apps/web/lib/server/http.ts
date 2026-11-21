@@ -32,3 +32,16 @@ export function errorResponse(e: unknown): NextResponse {
 export function json(data: unknown, init?: ResponseInit) {
   return NextResponse.json(data, { ...init, headers: { "cache-control": "no-store", ...(init?.headers ?? {}) } });
 }
+
+/** Reject cross-origin POSTs to state-changing (fork-only) endpoints. */
+export function sameOrigin(req: Request): NextResponse | null {
+  const origin = req.headers.get("origin");
+  if (!origin) return null;
+  const host = req.headers.get("host");
+  try {
+    if (new URL(origin).host === host) return null;
+  } catch {
+    /* fallthrough */
+  }
+  return NextResponse.json({ error: { code: "CROSS_ORIGIN", message: "Cross-origin requests to fork endpoints are refused." } }, { status: 403 });
+}

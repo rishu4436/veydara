@@ -6,11 +6,13 @@ import {
 } from "@veydara/protocols";
 import { formatUnitsSafe } from "@veydara/domain";
 import { serverEnv } from "./env";
+import { fixtureMarket, fixturePosition, isFixtureMode } from "./dataset";
 
 const g = globalThis as unknown as { __aaveMarket?: { at: number; p: Promise<AaveMarket> } };
 
 /** Market snapshot, single-flighted and cached 30 s (one block-pinned multicall set). */
 export function aaveMarket(): Promise<AaveMarket> {
+  if (isFixtureMode()) return Promise.resolve(fixtureMarket());
   const now = Date.now();
   if (g.__aaveMarket && now - g.__aaveMarket.at < 30_000) return g.__aaveMarket.p;
   const p = readAaveV4Market(makeBaseClient(serverEnv().BASE_RPC_URL));
@@ -38,7 +40,7 @@ export interface PositionAnalysis {
 
 export async function analysePosition(user: string): Promise<PositionAnalysis> {
   const market = await aaveMarket();
-  const position = await readAaveV4Position(makeBaseClient(serverEnv().BASE_RPC_URL), user, market);
+  const position = isFixtureMode() ? fixturePosition(user) : await readAaveV4Position(makeBaseClient(serverEnv().BASE_RPC_URL), user, market);
   const { coll, debt } = positionLegs(position, market);
   const m = accountMath(coll, debt);
   const book = bookFromPosition(position);
@@ -115,7 +117,9 @@ export interface ArenaResponse {
 export async function arenaFor(user: string): Promise<ArenaResponse> {
   const market = await aaveMarket();
   const client = makeBaseClient(serverEnv().BASE_RPC_URL);
-  const [position, scan] = await Promise.all([readAaveV4Position(client, user, market), scanBaseWallet(getAddress(user), { client })]);
+  const [position, scan] = isFixtureMode()
+    ? [fixturePosition(user), { holdings: [] as Awaited<ReturnType<typeof scanBaseWallet>>["holdings"] }]
+    : await Promise.all([readAaveV4Position(client, user, market), scanBaseWallet(getAddress(user), { client })]);
   const book = bookFromPosition(position);
   const wallet: Record<number, bigint> = {};
   for (const h of scan.holdings) {

@@ -49,3 +49,17 @@ Scenario prices are oracle prices × (1 − shock) for the affected reserves; "r
 
 ## Solver Arena and verifier (`strategy.ts`, `verifier.ts`)
 Solvers: Fortress (HF ≥ 2.00), Gap-proof (HF ≥ 1.24 / 0.8 = 1.55), Buffer-35 (HF ≥ 1/0.65), Aggressive (HF 1.10, a deliberate negative control). Each amount is capped by hub liquidity and the spoke draw-cap headroom. The verifier does not import the math module: it recomputes HF with exact rationals from raw snapshot fields and checks reserve state, caps, liquidity, wallet balances, HF ≥ 1 and the VEYDARA policy floor HF ≥ 1.25, and that the solver's HF claim matches within 1e-12. Zero-amount plans are reported as "no room".
+
+## Fork route verifier (`packages/execution/src/verify-route.ts`)
+Independent of `aave-v4-math`: replays each action over the fresh-state fields with exact rationals. HF = Σ(enabled supplied × price × CF/10⁴ ÷ 10^(dec+8)) ÷ Σ(debtRay × price ÷ 10^(dec+8) ÷ RAY). Borrow adds `amount × RAY` to debt; repay removes `min(amount × RAY, debtRay)` and pulls `min(amount, ⌈debt⌉)`; withdraw caps at the supplied balance. Checks: reserve flags, wallet balance, add cap, hub liquidity, draw cap, protocol HF ≥ 1 after borrow/withdraw, VEYDARA HF ≥ 1.25. Reconciliation tolerates ±2 base units (share rounding) and debt growth ≤ 3 × drawn rate × elapsed time.
+
+## Guardian (`packages/protocols/src/guardian.ts`)
+Risk radar scores (0 none … 100; level: <25 low, <50 elevated, <85 high, ≥85 critical; overall = max axis):
+- Health factor: ≥2 → 10, ≥1.5 → 30, ≥1.25 → 55, ≥1.05 → 80, else 95; no debt → 0.
+- Distance to liquidation (uniform fall to HF 1): ≥50% → 10, ≥30% → 30, ≥15% → 55, ≥5% → 80, else 95.
+- Monday-gap stress (HF after −10% equity gap): ≥1.5 → 10, ≥1.24 → 40, ≥1.0 → 75, else 95.
+- Oracle freshness: market open — ≤1 h → 5, ≤6 h → 70, else 90; market closed → 20 (feeds hold the last close by design); unknown → 50.
+- Concentration (largest collateral share): ≤50% → 10, ≤80% → 40, else 60.
+- Borrow capacity (spoke debt ÷ draw cap): ≤70% → 10, ≤90% → 40, else 70.
+- Borrow rate (APR): ≤5% → 10, ≤10% → 35, else 60.
+Default policies (monitor-only): HF < 1.5, distance < 20%, gap HF < 1.24, oracle > 2 h old during market hours; radar ≥ 85 (off). Alerts are keyed `policyId:address` for de-duplication.

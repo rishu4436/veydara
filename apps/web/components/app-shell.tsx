@@ -9,7 +9,8 @@ import { I } from "./icons";
 import { CommandPalette } from "./command-palette";
 import { WalletButton } from "./wallet-button";
 import { CapabilityBadge } from "./badge";
-import { getJson, type CapabilitiesResponse } from "@/lib/client/api";
+import { getJson, shortAddr, type CapabilitiesResponse } from "@/lib/client/api";
+import { useGuardian } from "@/lib/client/guardian-store";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -18,6 +19,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState(false);
   const [drawer, setDrawer] = useState(true);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const g = useGuardian();
+  const activeAlerts = g.inbox.filter((a) => a.active && !a.acked);
+  const dataset = useQuery({ queryKey: ["dataset"], queryFn: () => getJson<{ mode: "live" | "fixture" }>("/api/dataset"), staleTime: Infinity });
   const caps = useQuery({ queryKey: ["capabilities"], queryFn: () => getJson<CapabilitiesResponse>("/api/capabilities"), staleTime: 60_000 });
 
   useEffect(() => {
@@ -91,14 +95,21 @@ export function AppShell({ children }: { children: ReactNode }) {
               {rwaCap && <CapabilityBadge status={rwaCap.status} title={rwaCap.reason} />}
             </div>
             <div className="relative">
-              <button type="button" onClick={() => setAlerts((a) => !a)} aria-expanded={alerts} aria-label="Alerts" className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-muted hover:text-fg">
+              <button type="button" onClick={() => setAlerts((a) => !a)} aria-expanded={alerts} aria-label={`Alerts (${activeAlerts.length} active)`} className="relative grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-muted hover:text-fg">
                 <I.bell />
+                {activeAlerts.length > 0 && <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger px-1 text-[9.5px] font-semibold text-white">{activeAlerts.length}</span>}
               </button>
               {alerts && (
                 <div className="absolute right-0 top-12 z-40 w-72 rounded-2xl border border-line bg-raised p-4 text-sm shadow-2xl">
                   <p className="eyebrow mb-2">Alert center</p>
-                  <p className="text-muted">No alerts. Guardian monitoring is off — nothing is being watched yet, so no alerts can fire.</p>
-                  <Link href="/guardian" className="mt-3 inline-block text-xs text-ice" onClick={() => setAlerts(false)}>Guardian status →</Link>
+                  {activeAlerts.length === 0 ? (
+                    <p className="text-muted">{g.watch.length ? `No unacknowledged alerts for ${g.watch.length} watched address(es). Monitor-only.` : "No alerts. Nothing is watched yet — add an address in Guardian."}</p>
+                  ) : (
+                    <ul className="space-y-1.5 text-[12px]">
+                      {activeAlerts.slice(0, 5).map((a) => <li key={a.key} className={a.severity === "critical" ? "text-danger" : "text-amber"}>{a.title} <span className="font-mono text-[10.5px] text-faint">{shortAddr(a.address)}</span></li>)}
+                    </ul>
+                  )}
+                  <Link href="/guardian" className="mt-3 inline-block text-xs text-ice" onClick={() => setAlerts(false)}>Open alert center →</Link>
                 </div>
               )}
             </div>
@@ -110,7 +121,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <div className="flex min-w-0 flex-1">
-          <main id="main" className="min-w-0 flex-1 px-4 pb-28 pt-6 md:px-8 md:pb-12">{children}</main>
+          <main id="main" className="min-w-0 flex-1 px-4 pb-28 pt-6 md:px-8 md:pb-12">
+            {dataset.data?.mode === "fixture" && (
+              <div role="note" data-testid="fixture-banner" className="mx-auto mb-4 max-w-6xl rounded-xl border border-amber/50 bg-amber/10 px-4 py-2 text-[12.5px] text-amber">FIXTURE DATASET — Aave V4 data comes from committed, labelled recordings of Base (fixtures/chain), not live reads.</div>
+            )}
+            {children}
+          </main>
           {drawer && (
             <aside className="sticky top-16 hidden h-[calc(100dvh-4rem)] w-[300px] shrink-0 overflow-y-auto border-l border-line px-5 py-6 2xl:block" aria-label="Source health">
               <p className="eyebrow mb-3">Source health</p>
@@ -137,7 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-base/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Primary mobile">
-        {[NAV[0], NAV[1], NAV[2], NAV[6], NAV[7]].map((n) => {
+        {[NAV[0], NAV[1], NAV[4], NAV[7], NAV[8]].map((n) => {
           const active = n.href === "/" ? pathname === "/" : pathname.startsWith(n.href);
           const Icon = n.icon;
           return (

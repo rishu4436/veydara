@@ -11,6 +11,8 @@ packages/cmc            endpoint registry, zod schemas, gateway (cache/single-fl
 packages/chains         verified token registry, identity + quarantine, Base scan (viem multicall, block-pinned), Solana scan (JSON-RPC)
 packages/protocols      Aave V4: addresses (address book), view ABIs (aave-v4 @4885a7ad), block-pinned market/position reads,
                         bigint HF/liquidation math, Parallel Futures, Solver Arena, independent verifier; Chainlink reader
+packages/execution      fork-only pipeline: guard (loopback, chain 31337, anvil fork of Base), intent, fresh state, typed route,
+                        independent route verifier, snapshot simulation, preview, local signing, receipts, reconcile, records
 packages/quant          candles (CMC v5 + DEX K-line parsers, outlier wicks), indicators, S/R zones, multi-horizon research
 fixtures/cmc            CMC fixtures: *.doc.json = docs examples, *.live.json = recorded keyless responses (all labeled)
 fixtures/chain          registry verification evidence

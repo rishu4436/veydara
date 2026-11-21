@@ -1,6 +1,6 @@
 # Product feature matrix
 
-Status values match the in-app badges: **Live verified**, **Read-only**, **Fork/testnet**, **Simulation**, **Unavailable**. The app computes badges server-side (`apps/web/lib/server/capabilities.ts`); this table is the planning view as of 2026-11-21 (updated after Phase 2–3).
+Status values match the in-app badges: **Live verified**, **Read-only**, **Fork/testnet**, **Simulation**, **Unavailable**. The app computes badges server-side (`apps/web/lib/server/capabilities.ts`); this table is the planning view as of 2026-11-21 (updated after Phase 4).
 
 | Pillar | Feature | Status | Evidence / blocker |
 |---|---|---|---|
@@ -26,10 +26,18 @@ Status values match the in-app badges: **Live verified**, **Read-only**, **Fork/
 | Execute | Free-form intent engine | Not built | |
 | Execute | Aave V4 Equities Hub: reserves (CF, bonus, fee, risk, caps, liquidity, rates, prices) and user positions | Live verified | ABIs @ aave-v4 `4885a7ad`; `/positions`, `/api/aave/*` |
 | Execute | Borrowing / HF / liquidation-price math (bigint) | Live verified | exact match with Spoke HF on 5 live borrowers |
-| Execute | Fork execution receipts | Not built (Phase 4) | needs Base fork (anvil) + funded fork accounts |
+| Execute | Fork execution: supply, use as collateral, borrow USDC, partial repay, withdraw (Aave V4 MAG7 Spoke) | Fork/testnet | `packages/execution`, `/fork`; receipts + reconciliation in `fixtures/fork/*.fork.json` |
+| Execute | Pipeline stages (validate → fork guard → fresh state → typed route → verifier → simulation → preview → signing → sending → receipts → reconcile → proof) | Fork/testnet | every stage recorded per run; blocked and reverted runs recorded |
+| Execute | Revert handling (decoded Spoke/Hub/SafeERC20 custom errors; unknown selectors shown raw) | Fork/testnet | revert drill record: `HealthFactorBelowThreshold()` |
+| Execute | Mainnet execution | Unavailable by design | signer refuses chain ≠ 31337 and non-loopback RPCs |
 | Execute | Kamino / Morpho / Lista | Unavailable (not started) | |
 | Guardian | RWA Risk Clock (session, oracle age, re-open gap stress on the live position) | Live verified | `components/risk-clock.tsx` |
 | Guardian | CMC vs oracle disagreement flag (>1%) | Live verified | `lib/server/asset.ts` |
-| Guardian | Monitors, alerts, policies, kill switch | Not built (Phase 5); automation disabled | |
-| Platform | Proof Center: capability matrix + CMC credit ledger | Live verified | `/proof`, `/api/ledger` |
+| Guardian | Risk radar (health, distance, Monday gap, oracle freshness, concentration, draw-cap capacity, rate) | Live verified | `packages/protocols/src/guardian.ts`, `/guardian` |
+| Guardian | In-app alert center: monitor-only policies, de-duplicated inbox, acknowledge, 60 s re-evaluation while open | Read-only (in-browser) | no push/email channel; no action mode exists |
+| Guardian | Emergency center: positions, allowances (address book + Approval-log discovery), position managers | Live verified | `/api/guardian/allowances` |
+| Guardian | Revoke preparation (approve(spender,0), setUserPositionManager(pm,false)) | Fork/testnet | simulated as the owner in a reverted anvil snapshot; never sent |
+| Guardian | Automated protection / kill switch | Unavailable by design | |
+| Platform | Proof Center: fork execution records, capability matrix + CMC credit ledger | Live verified | `/proof`, `/api/proof/records`, `/api/ledger` |
+| Platform | Playwright e2e on a controlled fixture dataset (wallet → analysis → risk → simulation → proof) | CI | `tests/e2e/flow.spec.ts`, `VEYDARA_DATASET=fixture` |
 | Platform | SIWE sessions, Postgres persistence | Not built | ledger is in-memory per server process |

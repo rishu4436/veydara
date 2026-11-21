@@ -3,6 +3,8 @@ import { ADAPTERS } from "@veydara/protocols";
 import { cmc } from "./cmc";
 import { serverEnv } from "./env";
 import { makeBaseClient, solanaRpc } from "@veydara/chains";
+import { inspectFork } from "@veydara/execution";
+import { isFixtureMode } from "./dataset";
 
 async function probe(fn: () => Promise<unknown>): Promise<{ ok: boolean; detail: string }> {
   try {
@@ -88,12 +90,19 @@ export async function resolveCapabilities(): Promise<Capability[]> {
   for (const a of ADAPTERS) {
     for (const [cap, v] of Object.entries(a.capabilities)) {
       if (cap === "oracleRead") continue;
-      caps.push({ id: `adapter.${a.id}.${cap}`, label: `${a.name}: ${cap}`, pillar: "execute", status: v!.implemented ? "read-only" : "unavailable", reason: v!.note, checkedAt: now });
+      caps.push({ id: `adapter.${a.id}.${cap}`, label: `${a.name}: ${cap}`, pillar: "execute", status: v!.implemented ? (["deposit", "borrow", "repay", "withdraw"].includes(cap) ? "fork-testnet" : "read-only") : "unavailable", reason: v!.note, checkedAt: now });
     }
   }
+  const fork = await inspectFork(env.FORK_RPC_URL).then((f) => ({ ok: true as const, f })).catch((e: Error) => ({ ok: false as const, reason: e.message.slice(0, 140) }));
   caps.push(
-    { id: "execute.any", label: "Transaction execution", pillar: "execute", status: "unavailable", reason: "No execution path is enabled. Phase 4 targets a clearly labeled Base fork; mainnet broadcast requires explicit owner approval.", checkedAt: now },
-    { id: "guardian.automation", label: "Automated protection", pillar: "guardian", status: "unavailable", reason: "Disabled by default; no authorized automation mechanism exists.", checkedAt: now },
+    fork.ok
+      ? { id: "execute.fork", label: "Fork execution (Aave V4 MAG7: supply, collateral, borrow, repay, withdraw)", pillar: "execute", status: "fork-testnet", evidence: `anvil chain ${fork.f.chainId}, Base forked at ${fork.f.forkBlockNumber} via ${fork.f.upstreamHost}`, reason: "Full pipeline on a LOCAL anvil fork: validate → fresh state → typed route → verifier → simulation → preview → sign (anvil test key, chain 31337) → send → receipt → reconcile → proof record.", checkedAt: now }
+      : { id: "execute.fork", label: "Fork execution (Aave V4 MAG7)", pillar: "execute", status: "unavailable", reason: `No local fork reachable: ${fork.reason}`, unlock: "Run `pnpm fork` (anvil, chain 31337, loopback only).", checkedAt: now },
+    { id: "execute.mainnet", label: "Mainnet transaction execution", pillar: "execute", status: "unavailable", reason: "Deliberately not implemented. The signer refuses any chain id other than 31337 and any non-loopback RPC.", checkedAt: now },
+    { id: "guardian.radar", label: "Risk radar (7 axes per position)", pillar: "guardian", status: isFixtureMode() ? "read-only" : baseProbe.ok ? "live-verified" : "unavailable", reason: "Deterministic scores from block-pinned Aave V4 reads, Chainlink feed ages and the NYSE session calendar.", checkedAt: now },
+    { id: "guardian.alerts", label: "In-app alert center (policies)", pillar: "guardian", status: "read-only", reason: "Monitor-only policies evaluated on demand or every 60 s while open; inbox de-duplicated in this browser. No push/email channel and no actions.", checkedAt: now },
+    { id: "guardian.emergency", label: "Emergency center (positions, allowances, position managers)", pillar: "guardian", status: baseProbe.ok && !isFixtureMode() ? "live-verified" : "unavailable", reason: `Live allowance + isPositionManager reads; revocations are prepared and simulated only on the local fork${fork.ok ? "" : " (fork currently unavailable)"}.`, checkedAt: now },
+    { id: "guardian.automation", label: "Automated protection", pillar: "guardian", status: "unavailable", reason: "Disabled by design; no authorized automation mechanism exists.", checkedAt: now },
   );
   return caps;
 }
